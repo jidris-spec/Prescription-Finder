@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import {
   getPharmacyByUserId,
@@ -15,10 +15,12 @@ import {
   getPrescriptionItems,
   getMedicine
 } from '@/shared/lib/firebase/db'
-import { PatientDashboard } from '@/roles/patient/components/patient-dashboard'
-import { DoctorDashboard } from '@/roles/doctor/components/doctor-dashboard'
-import { PharmacistDashboard } from '@/roles/pharmacy/components/pharmacist-dashboard'
-import { AdminDashboard } from '@/roles/admin/components/admin-dashboard'
+import LoadingFallback from '@/shared/components/common/LoadingFallback'
+
+const PatientDashboard    = lazy(() => import('@/roles/patient/components/patient-dashboard').then(m => ({ default: m.PatientDashboard })))
+const DoctorDashboard     = lazy(() => import('@/roles/doctor/components/doctor-dashboard').then(m => ({ default: m.DoctorDashboard })))
+const PharmacistDashboard = lazy(() => import('@/roles/pharmacy/components/pharmacist-dashboard').then(m => ({ default: m.PharmacistDashboard })))
+const AdminDashboard      = lazy(() => import('@/roles/admin/components/admin-dashboard').then(m => ({ default: m.AdminDashboard })))
 
 export default function DashboardHomePage() {
   const { user, profile } = useAuth()
@@ -151,19 +153,33 @@ export default function DashboardHomePage() {
 
   switch (role) {
     case 'doctor':
-      return <DoctorDashboard profile={profile} stats={stats} />
+      return (
+        <Suspense fallback={<LoadingFallback />}>
+          <DoctorDashboard profile={profile} stats={stats} />
+        </Suspense>
+      )
     case 'pharmacy':
     case 'pharmacist':
-      return <PharmacistDashboard profile={profile} pharmacy={pharmacy} stats={stats} />
+      return (
+        <Suspense fallback={<LoadingFallback />}>
+          <PharmacistDashboard profile={profile} pharmacy={pharmacy} stats={stats} />
+        </Suspense>
+      )
     case 'admin':
-      return <AdminDashboard profile={profile} stats={stats} />
+      return (
+        <Suspense fallback={<LoadingFallback />}>
+          <AdminDashboard profile={profile} stats={stats} />
+        </Suspense>
+      )
     default:
       return (
-        <PatientDashboard
-          profile={profile}
-          prescriptions={patientPrescriptions}
-          scheduleStats={scheduleStats}
-        />
+        <Suspense fallback={<LoadingFallback />}>
+          <PatientDashboard
+            profile={profile}
+            prescriptions={patientPrescriptions}
+            scheduleStats={scheduleStats}
+          />
+        </Suspense>
       )
   }
 }

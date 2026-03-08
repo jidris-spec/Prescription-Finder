@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedFind – Mentor Presentation Guide</title>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #1a1a2e;
+      background: #ffffff;
+    }
+
+    /* ── Print ────────────────────────────────────────── */
+    @media print {
+      .page-break { page-break-before: always; }
+      .no-print   { display: none; }
+      body        { font-size: 12px; }
+    }
+
+    /* ── Layout ───────────────────────────────────────── */
+    .container { max-width: 860px; margin: 0 auto; padding: 40px 48px; }
+
+    /* ── Cover Page ───────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: linear-gradient(135deg, #0f3460 0%, #16213e 60%, #1a1a2e 100%);
+      color: #fff;
+      padding: 60px 80px;
+    }
+    .cover .badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: #e0e7ff;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 99px;
+      margin-bottom: 24px;
+      width: fit-content;
+    }
+    .cover h1 { font-size: 52px; font-weight: 800; letter-spacing: -1px; line-height: 1.1; }
+    .cover h1 span { color: #818cf8; }
+    .cover .tagline {
+      font-size: 18px;
+      color: #a5b4fc;
+      margin-top: 16px;
+      max-width: 520px;
+    }
+    .cover .meta {
+      margin-top: 60px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 24px;
+      display: flex;
+      gap: 48px;
+    }
+    .cover .meta-item label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: #818cf8; }
+    .cover .meta-item p    { font-size: 14px; color: #e0e7ff; margin-top: 4px; }
+
+    /* ── Section Headers ──────────────────────────────── */
+    .section-header {
+      padding: 20px 48px 12px;
+      border-bottom: 3px solid #4f46e5;
+      background: #f8f8ff;
+      margin-bottom: 0;
+    }
+    .section-header .section-num {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #6366f1;
+      font-weight: 700;
+    }
+    .section-header h2 { font-size: 26px; font-weight: 800; color: #1e1b4b; margin-top: 4px; }
+
+    /* ── Content Sections ─────────────────────────────── */
+    .section { padding: 32px 48px; }
+
+    h3 { font-size: 17px; font-weight: 700; color: #312e81; margin: 28px 0 10px; }
+    h3:first-child { margin-top: 0; }
+    p  { margin-bottom: 12px; color: #374151; }
+
+    /* ── Cards ────────────────────────────────────────── */
+    .card-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0; }
+    .card {
+      background: #fff;
+      border: 1px solid #e0e7ff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(79,70,229,0.06);
+    }
+    .card .card-icon { font-size: 28px; margin-bottom: 10px; }
+    .card h4 { font-size: 15px; font-weight: 700; color: #1e1b4b; margin-bottom: 6px; }
+    .card p  { font-size: 13px; color: #6b7280; margin: 0; }
+
+    /* ── Role Pills ───────────────────────────────────── */
+    .roles { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+    .role-pill {
+      border-radius: 12px;
+      padding: 14px 20px;
+      flex: 1;
+      min-width: 160px;
+      border-left: 4px solid;
+    }
+    .role-pill.doctor    { background: #eff6ff; border-color: #3b82f6; }
+    .role-pill.patient   { background: #f0fdf4; border-color: #22c55e; }
+    .role-pill.pharmacy  { background: #faf5ff; border-color: #a855f7; }
+    .role-pill.admin     { background: #fff7ed; border-color: #f97316; }
+    .role-pill h4 { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .role-pill ul { list-style: none; }
+    .role-pill ul li { font-size: 12px; color: #4b5563; padding: 2px 0; }
+    .role-pill ul li::before { content: "• "; }
+
+    /* ── Tech Stack Table ─────────────────────────────── */
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    th {
+      background: #4f46e5;
+      color: #fff;
+      text-align: left;
+      padding: 10px 14px;
+      font-weight: 600;
+    }
+    td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; color: #374151; }
+    tr:nth-child(even) td { background: #f5f3ff; }
+
+    /* ── Timeline ─────────────────────────────────────── */
+    .timeline { margin: 16px 0; }
+    .timeline-item { display: flex; gap: 16px; margin-bottom: 20px; }
+    .timeline-dot {
+      width: 36px; height: 36px; min-width: 36px;
+      background: #4f46e5; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: 14px;
+    }
+    .timeline-item .content h4 { font-size: 14px; font-weight: 700; color: #1e1b4b; margin-bottom: 4px; }
+    .timeline-item .content p  { font-size: 13px; color: #6b7280; margin: 0; }
+
+    /* ── Flow Diagram ─────────────────────────────────── */
+    .flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0; }
+    .flow-box {
+      background: #4f46e5;
+      color: #fff;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+    .flow-arrow { font-size: 20px; color: #818cf8; padding: 0 8px; }
+
+    /* ── Code Block ───────────────────────────────────── */
+    .code-block {
+      background: #1e1b4b;
+      color: #a5b4fc;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.8;
+      margin: 12px 0;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: #f472b6; }
+    .code-block .string  { color: #34d399; }
+
+    /* ── Tip Box ──────────────────────────────────────── */
+    .tip-box {
+      background: #fffbeb;
+      border-left: 4px solid #f59e0b;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #78350f;
+    }
+    .tip-box strong { color: #b45309; }
+
+    .info-box {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 13px;
+      color: #1e40af;
+    }
+
+    /* ── Checklist ────────────────────────────────────── */
+    .checklist { list-style: none; margin: 12px 0; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; color: #374151;
+    }
+    .checklist li .check { color: #22c55e; font-weight: 700; font-size: 16px; min-width: 20px; }
+
+    /* ── Q&A Section ──────────────────────────────────── */
+    .qa-item { margin-bottom: 18px; }
+    .qa-item .question {
+      background: #f5f3ff;
+      border-left: 3px solid #6366f1;
+      padding: 10px 14px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #1e1b4b;
+      border-radius: 0 6px 6px 0;
+    }
+    .qa-item .answer {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #374151;
+      border-left: 3px solid #e5e7eb;
+      margin-left: 0;
+    }
+
+    /* ── Print Hint ───────────────────────────────────── */
+    .print-hint {
+      background: #ecfdf5;
+      border: 1px dashed #6ee7b7;
+      border-radius: 8px;
+      padding: 16px 20px;
+      font-size: 13px;
+      color: #065f46;
+      margin-bottom: 40px;
+    }
+
+    /* ── Page Divider ─────────────────────────────────── */
+    hr.page-sep { border: none; border-top: 2px dashed #e0e7ff; margin: 40px 0; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOW TO SAVE AS PDF
+     Open this file in Chrome/Edge → Ctrl+P → Save as PDF
+     Set margins to "None" or "Minimum" for best results.
+════════════════════════════════════════════════════════ -->
+
+<!-- ── COVER PAGE ─────────────────────────────────────── -->
+<div class="cover">
+  <div class="badge">Mentor Presentation Guide</div>
+  <h1>Med<span>Find</span></h1>
+  <p class="tagline">
+    A full-stack prescription management platform connecting doctors, patients, and pharmacies in real time.
+  </p>
+  <div class="meta">
+    <div class="meta-item">
+      <label>Project Name</label>
+      <p>MedFind / Prescription Finder</p>
+    </div>
+    <div class="meta-item">
+      <label>Stack</label>
+      <p>React 19 · Firebase · Tailwind CSS</p>
+    </div>
+    <div class="meta-item">
+      <label>Prepared For</label>
+      <p>Mentor Review Session</p>
+    </div>
+    <div class="meta-item">
+      <label>Date</label>
+      <p>March 2026</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRINT HINT ──────────────────────────────────────── -->
+<div class="container">
+  <div class="print-hint no-print">
+    <strong>How to save this as a PDF:</strong>
+    Press <kbd>Ctrl + P</kbd> (Windows) or <kbd>Cmd + P</kbd> (Mac) → Change destination to
+    <strong>"Save as PDF"</strong> → Set margins to <strong>"None"</strong> → Click <strong>Save</strong>.
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 1 — WHAT IS THIS PROJECT?
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 01</div>
+  <h2>What Is This Project?</h2>
+</div>
+<div class="section container">
+
+  <p>
+    <strong>MedFind</strong> is a web application that digitises the prescription process.
+    Today, prescriptions are paper-based — doctors hand-write them, patients carry them to a pharmacy,
+    and pharmacists manually look up stock. MedFind replaces every paper step with a real-time digital workflow.
+  </p>
+
+  <h3>The Problem It Solves</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-icon">📄</div>
+      <h4>Lost Paper Prescriptions</h4>
+      <p>Prescriptions get lost, damaged, or are illegible. MedFind stores them securely in the cloud.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🔍</div>
+      <h4>Medicine Availability</h4>
+      <p>Patients don't know which pharmacy stocks their medicine. MedFind shows real-time inventory.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">💊</div>
+      <h4>Dose Tracking</h4>
+      <p>Patients forget to take medication on time. The schedule feature shows a daily dose calendar.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">🏥</div>
+      <h4>Disconnected Systems</h4>
+      <p>Doctors, patients, and pharmacies have no shared platform. MedFind connects all three.</p>
+    </div>
+  </div>
+
+  <h3>The Core Idea — One Platform, Four Roles</h3>
+  <p>Every user signs up and picks a role. The app then gives them a personalised dashboard with only the tools they need.</p>
+
+  <div class="roles">
+    <div class="role-pill doctor">
+      <h4>Doctor</h4>
+      <ul>
+        <li>Write digital prescriptions</li>
+        <li>Manage connected patients</li>
+        <li>View patient history</li>
+        <li>Browse connected pharmacies</li>
+      </ul>
+    </div>
+    <div class="role-pill patient">
+      <h4>Patient</h4>
+      <ul>
+        <li>View own prescriptions</li>
+        <li>Dose schedule / calendar</li>
+        <li>Connect to a doctor</li>
+        <li>Search medicine availability</li>
+      </ul>
+    </div>
+    <div class="role-pill pharmacy">
+      <h4>Pharmacist</h4>
+      <ul>
+        <li>Manage medicine inventory</li>
+        <li>Fulfill prescription orders</li>
+        <li>Track low-stock alerts</li>
+        <li>Browse medicine database</li>
+      </ul>
+    </div>
+    <div class="role-pill admin">
+      <h4>Admin</h4>
+      <ul>
+        <li>Manage all users</li>
+        <li>Verify doctor accounts</li>
+        <li>Access full system view</li>
+        <li>Override any role page</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 2 — TECHNOLOGY STACK
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 02</div>
+  <h2>Technology Stack — What & Why</h2>
+</div>
+<div class="section container">
+
+  <p>
+    Every technology was chosen deliberately. When your mentor asks
+    <em>"why did you use X?"</em> — use this table as your reference.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Technology</th>
+        <th>What it does</th>
+        <th>Why I chose it</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>React 19</strong></td>
+        <td>Frontend UI library</td>
+        <td>Component-based, huge ecosystem, industry standard</td>
+      </tr>
+      <tr>
+        <td><strong>Vite</strong></td>
+        <td>Build tool &amp; dev server</td>
+        <td>Extremely fast hot-reload, modern ESM approach</td>
+      </tr>
+      <tr>
+        <td><strong>React Router v7</strong></td>
+        <td>Client-side routing</td>
+        <td>Nested routes, lazy loading, role-based guards</td>
+      </tr>
+      <tr>
+        <td><strong>Firebase Auth</strong></td>
+        <td>User authentication</td>
+        <td>Email/password auth out-of-the-box, no backend server needed</td>
+      </tr>
+      <tr>
+        <td><strong>Firebase Firestore</strong></td>
+        <td>NoSQL cloud database</td>
+        <td>Real-time sync, scales automatically, free tier is generous</td>
+      </tr>
+      <tr>
+        <td><strong>Tailwind CSS v4</strong></td>
+        <td>Utility-first styling</td>
+        <td>Fast to style, consistent design tokens, no CSS file clutter</td>
+      </tr>
+      <tr>
+        <td><strong>Radix UI / shadcn</strong></td>
+        <td>Accessible UI components</td>
+        <td>Production-quality components (dialogs, dropdowns, etc.) with no extra design work</td>
+      </tr>
+      <tr>
+        <td><strong>React Hook Form + Zod</strong></td>
+        <td>Form handling &amp; validation</td>
+        <td>Minimal re-renders, schema-based validation, great DX</td>
+      </tr>
+      <tr>
+        <td><strong>Lucide React</strong></td>
+        <td>Icon library</td>
+        <td>Clean, consistent SVG icons, tree-shakeable</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box">
+    <strong>Mentor Tip:</strong> If asked "why Firebase instead of a custom backend?" — answer: "As a frontend developer, Firebase let me focus on the product features (prescriptions, roles, inventory) instead of setting up REST APIs and a database server. It's a perfect fit for a portfolio project."
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 3 — PROJECT STRUCTURE
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 03</div>
+  <h2>Project Structure — How the Code Is Organised</h2>
+</div>
+<div class="section container">
+
+  <p>The folder structure follows a <strong>role-based architecture</strong>. Code that belongs to a role lives inside that role's folder — this keeps the project easy to navigate and scale.</p>
+
+  <div class="code-block">
+<span class="comment">src/</span>
+├── app/
+│   ├── main.jsx          <span class="comment">← Entry point (renders the app)</span>
+│   ├── providers.jsx     <span class="comment">← Wraps app with AuthProvider</span>
+│   └── router.jsx        <span class="comment">← All routes + role guards defined here</span>
+│
+├── auth/
+│   └── pages/            <span class="comment">← Login, SignUp, AuthCallback pages</span>
+│
+├── context/
+│   └── AuthContext.jsx   <span class="comment">← Global auth state (user, profile, role)</span>
+│
+├── guards/
+│   └── RequireRole.jsx   <span class="comment">← Blocks pages if wrong role</span>
+│
+├── roles/
+│   ├── doctor/           <span class="comment">← Everything the doctor sees</span>
+│   │   ├── api.js
+│   │   ├── components/
+│   │   └── pages/
+│   ├── patient/          <span class="comment">← Everything the patient sees</span>
+│   ├── pharmacy/         <span class="comment">← Everything the pharmacist sees</span>
+│   └── admin/            <span class="comment">← Admin user management</span>
+│
+└── shared/
+    ├── components/       <span class="comment">← Reusable UI (layout, common, shadcn)</span>
+    ├── lib/              <span class="comment">← Firebase client, DB helpers, utilities</span>
+    └── pages/            <span class="comment">← Pages shared by multiple roles</span>
+  </div>
+
+  <h3>Why This Structure?</h3>
+  <p>
+    Instead of grouping files by type (all components in one folder, all pages in another),
+    files are grouped by <strong>feature and role</strong>. This means:
+  </p>
+  <ul class="checklist">
+    <li><span class="check">✓</span> Easy to find doctor-related code — it's all in <code>src/roles/doctor/</code></li>
+    <li><span class="check">✓</span> Adding a new role (e.g., "nurse") means adding one new folder</li>
+    <li><span class="check">✓</span> Shared components are truly shared — no duplication</li>
+    <li><span class="check">✓</span> The <code>guards/</code> folder ensures route-level security</li>
+  </ul>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 4 — KEY FEATURES (DEEP DIVE)
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 04</div>
+  <h2>Key Features — Deep Dive</h2>
+</div>
+<div class="section container">
+
+  <h3>Feature 1 — Role-Based Authentication</h3>
+  <p>
+    When a user signs up, they choose their role (doctor, patient, pharmacy). This role is stored
+    in Firestore under a <code>profiles</code> collection. Every time the user logs in, the app
+    fetches this profile and stores it in <strong>React Context</strong> — making the role available
+    everywhere in the app.
+  </p>
+
+  <div class="flow">
+    <div class="flow-box">User logs in</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Firebase Auth</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Fetch profile from Firestore</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Store in AuthContext</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Route guard checks role</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-box">Correct dashboard shown</div>
+  </div>
+
+  <div class="info-box">
+    The <strong>RequireRole</strong> guard wraps every protected route. If a patient tries to visit
+    <code>/dashboard/new-prescription</code> (doctors only), they are redirected to the Unauthorized page automatically.
+  </div>
+
+  <hr class="page-sep">
+
+  <h3>Feature 2 — Prescription Workflow</h3>
+  <p>
+    This is the core business flow of the app. Here is how a prescription travels from doctor to patient to pharmacy:
+  </p>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot">1</div>
+      <div class="content">
+        <h4>Patient Connects to a Doctor</h4>
+        <p>The patient sends a connection request. The doctor accepts it. Only connected patients appear in the doctor's patient list.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">2</div>
+      <div class="content">
+        <h4>Doctor Writes a Prescription</h4>
+        <p>The doctor fills in: patient, diagnosis, one or more medicines (with dosage, frequency, duration), and optional notes. The form validates all fields before submission.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">3</div>
+      <div class="content">
+        <h4>Prescription Saved to Firestore</h4>
+        <p>A prescription document is created along with individual prescription-item documents for each medicine. An expiry date is automatically calculated.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">4</div>
+      <div class="content">
+        <h4>Patient Views Their Prescriptions</h4>
+        <p>The patient can open their prescriptions list and see all active and expired prescriptions with full details.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">5</div>
+      <div class="content">
+        <h4>Pharmacist Fulfills the Order</h4>
+        <p>The pharmacist sees incoming prescription orders, checks their inventory, and marks the order as filled.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="page-sep">
+
+  <h3>Feature 3 — Dose Schedule</h3>
+  <p>
+    Patients have a visual schedule page. Based on their active prescriptions, the app calculates
+    which medicines they need to take each day and at what frequency. This turns raw prescription data
+    into a personal medication calendar.
+  </p>
+
+  <hr class="page-sep">
+
+  <h3>Feature 4 — Pharmacy Inventory System</h3>
+  <p>
+    Pharmacists manage their own medicine inventory. They can:
+  </p>
+  <ul class="checklist">
+    <li><span class="check">✓</span> Add medicines from the global medicine database to their inventory</li>
+    <li><span class="check">✓</span> Set stock quantity and pricing</li>
+    <li><span class="check">✓</span> See a dashboard with total items, low stock count, pending orders, and filled-today count</li>
+    <li><span class="check">✓</span> Receive alerts when stock is running low</li>
+  </ul>
+
+  <hr class="page-sep">
+
+  <h3>Feature 5 — Lazy Loading &amp; Code Splitting</h3>
+  <p>
+    Not all pages are loaded when the app first opens. Using <strong>React's lazy()</strong> and
+    <strong>Suspense</strong>, each role's pages are split into separate JavaScript bundles
+    that only download when the user navigates to them. This makes the initial load fast.
+  </p>
+
+  <div class="code-block">
+<span class="comment">// Router.jsx — pages load only when visited</span>
+<span class="keyword">const</span> NewPrescriptionPage = <span class="keyword">lazy</span>(() => <span class="keyword">import</span>(<span class="string">"@/roles/doctor/pages/NewPrescriptionPage.jsx"</span>))
+<span class="keyword">const</span> SchedulePage = <span class="keyword">lazy</span>(() => <span class="keyword">import</span>(<span class="string">"@/roles/patient/pages/SchedulePage.jsx"</span>))
+
+<span class="comment">// Wrapped in &lt;Suspense&gt; to show a loading spinner while the page loads</span>
+&lt;<span class="keyword">Suspense</span> fallback={&lt;<span class="string">LoadingFallback</span> /&gt;}&gt;
+  &lt;<span class="string">NewPrescriptionPage</span> /&gt;
+&lt;/<span class="keyword">Suspense</span>&gt;
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 5 — HOW TO DEMO THE APP
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 05</div>
+  <h2>How to Demo the App to Your Mentor</h2>
+</div>
+<div class="section container">
+
+  <div class="tip-box">
+    <strong>Before the meeting:</strong> Run <code>npm run dev</code> and have the browser open.
+    Create test accounts in advance so you are not typing during the demo.
+  </div>
+
+  <h3>Recommended Demo Order (10–15 minutes)</h3>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-dot">1</div>
+      <div class="content">
+        <h4>Start on the Login page (2 min)</h4>
+        <p>Show the sign-in form. Explain that Firebase handles authentication securely. Log in as a <strong>Doctor</strong>.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">2</div>
+      <div class="content">
+        <h4>Doctor Dashboard (2 min)</h4>
+        <p>Show the dashboard with quick-action cards and stats. Briefly mention the sidebar navigation and how menu items change based on role.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">3</div>
+      <div class="content">
+        <h4>New Prescription Page (3 min)</h4>
+        <p>This is your <strong>main feature</strong>. Show selecting a patient, adding medicines with dosage &amp; frequency, and submitting. Watch it redirect to the prescriptions list on success.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">4</div>
+      <div class="content">
+        <h4>Switch to Patient account (2 min)</h4>
+        <p>Log in as a patient. Show the prescriptions list and dose schedule. Emphasise how the same prescription data is now viewed from the patient's perspective.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">5</div>
+      <div class="content">
+        <h4>Switch to Pharmacy account (2 min)</h4>
+        <p>Show the inventory dashboard, medicines list, and orders. Point out the stats cards (total items, low stock, pending orders).</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-dot">6</div>
+      <div class="content">
+        <h4>Try accessing a blocked route (1 min)</h4>
+        <p>While logged in as a patient, manually type <code>/dashboard/new-prescription</code> in the URL bar. Show the Unauthorized page — demonstrating the role guard works.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3>Tips for a Smooth Demo</h3>
+  <ul class="checklist">
+    <li><span class="check">✓</span> Use browser zoom (Ctrl + or Ctrl -) so your mentor can read the text</li>
+    <li><span class="check">✓</span> Have test accounts already created before the meeting</li>
+    <li><span class="check">✓</span> Keep browser DevTools closed unless asked — it looks cleaner</li>
+    <li><span class="check">✓</span> If something breaks, stay calm — say "I know the issue, let me show you the code"</li>
+    <li><span class="check">✓</span> Keep the project open in VS Code in one half of the screen if they want to see code</li>
+  </ul>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 6 — ANTICIPATED MENTOR QUESTIONS
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 06</div>
+  <h2>Anticipated Mentor Questions &amp; Answers</h2>
+</div>
+<div class="section container">
+
+  <div class="qa-item">
+    <div class="question">Q: Why did you choose Firebase instead of building your own backend API?</div>
+    <div class="answer">Firebase let me focus 100% on the frontend product features — prescriptions, user roles, inventory. Building a backend (Node.js + database + auth) would have doubled the scope of the project. Firebase is also production-grade, used by thousands of companies, so it's not "cheating" — it's a pragmatic choice.</div>
+  </div>
+
+  <div class="qa-item">
+    <div class="question">Q: How does your role-based access control work?</div>
+    <div class="answer">Each user has a "role" field in their Firestore profile (doctor, patient, pharmacy, admin). After login, I fetch this profile and store it in React Context. Every protected route is wrapped in a RequireRole component that reads the role from context. If the role doesn't match, the user is redirected to an Unauthorized page.</div>
+  </div>
+
+  <div class="qa-item">
+    <div class="question">Q: What happens if a user tries to bypass the route guard by changing the URL?</div>
+    <div class="answer">The RequireRole guard runs on every render, not just on navigation. Even if a user manually types a URL, the guard checks their actual role from context before rendering the page. The Firestore security rules also enforce this on the data level.</div>
+  </div>
+
+  <div class="qa-item">
+    <div class="question">Q: How do you handle loading states?</div>
+    <div class="answer">Auth state loading is tracked in AuthContext. Lazy-loaded pages show a LoadingFallback spinner via React Suspense. Individual data fetches inside components track their own loading state with useState.</div>
+  </div>
+
+  <div class="qa-item">
+    <div class="question">Q: What would you improve if you had more time?</div>
+    <div class="answer">I would add: (1) real-time notifications when a prescription is created, (2) a chat feature between doctor and patient, (3) PDF export for prescriptions, (4) proper unit and integration tests, (5) a mobile app using React Native.</div>
+  </div>
+
+  <div class="qa-item">
+    <div class="question">Q: How is the project structured and why?</div>
+    <div class="answer">I use a role-based folder structure where each role (doctor, patient, pharmacy, admin) has its own folder with its own components, pages, and API calls. Shared components live in a shared folder. This makes it easy to add a new role without touching existing code.</div>
+  </div>
+
+  <div class="qa-item">
+    <div class="question">Q: Did you write this alone? How long did it take?</div>
+    <div class="answer">Yes, this is my own project. I used Claude Code (an AI assistant) to help with boilerplate and debugging, similar to how developers use Stack Overflow or GitHub Copilot. All architectural decisions and feature design are my own.</div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 7 — PRESENTATION SCRIPT
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 07</div>
+  <h2>Presentation Script — What to Say</h2>
+</div>
+<div class="section container">
+
+  <div class="info-box">
+    This is a suggested script. Speak naturally — do not read it word for word. Use it to prepare and practice.
+  </div>
+
+  <h3>Opening (30 seconds)</h3>
+  <p style="font-style:italic; background:#f9fafb; border-left:3px solid #d1d5db; padding:12px 16px; border-radius:0 6px 6px 0; font-size:13px;">
+    "The project I built is called MedFind — a prescription management platform. The core idea is to digitise
+    the whole prescription workflow: a doctor writes a prescription digitally, the patient can immediately see
+    it on their phone, and pharmacies can check their inventory against incoming prescriptions. I built the
+    entire frontend with React, and I used Firebase for the backend — authentication and the database."
+  </p>
+
+  <h3>Explaining the Architecture (1–2 minutes)</h3>
+  <p style="font-style:italic; background:#f9fafb; border-left:3px solid #d1d5db; padding:12px 16px; border-radius:0 6px 6px 0; font-size:13px;">
+    "The app has four user roles — doctor, patient, pharmacist, and admin. Each role gets a different
+    dashboard with different features. I handle this with a role-based access system. When a user logs in,
+    their role is fetched from Firestore and stored in React Context. Every route is protected by a
+    'RequireRole' guard that checks whether the current user has permission to see that page."
+  </p>
+
+  <h3>Showing the Prescription Feature (during demo)</h3>
+  <p style="font-style:italic; background:#f9fafb; border-left:3px solid #d1d5db; padding:12px 16px; border-radius:0 6px 6px 0; font-size:13px;">
+    "Here I'm logged in as a doctor. I'll go to New Prescription. I select the patient — notice only
+    connected patients appear here, so I can't accidentally prescribe for someone I don't know.
+    I add the medicines, set dosage and frequency, and submit. The prescription is saved to Firestore
+    with an auto-calculated expiry date. If I switch to the patient's account, they can already see
+    this prescription in their dashboard."
+  </p>
+
+  <h3>Closing (30 seconds)</h3>
+  <p style="font-style:italic; background:#f9fafb; border-left:3px solid #d1d5db; padding:12px 16px; border-radius:0 6px 6px 0; font-size:13px;">
+    "The biggest thing I learned from this project is how to architect a multi-role application — making
+    sure different users have the right access and the right experience without duplicating a lot of code.
+    I'd love your feedback on the structure and any areas you think I should improve."
+  </p>
+
+  <div class="tip-box">
+    <strong>Golden Rule:</strong> Always end by asking your mentor a question. It shows you are engaged and open to feedback — and mentors love that. Try: <em>"What's the first thing you would refactor in this project?"</em>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     SECTION 8 — PRE-MEETING CHECKLIST
+════════════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="section-header container">
+  <div class="section-num">Section 08</div>
+  <h2>Pre-Meeting Checklist</h2>
+</div>
+<div class="section container">
+
+  <h3>The Day Before</h3>
+  <ul class="checklist">
+    <li><span class="check">☐</span> Run <code>npm run dev</code> and make sure the app starts without errors</li>
+    <li><span class="check">☐</span> Create at least 2 test accounts: one doctor, one patient, one pharmacy</li>
+    <li><span class="check">☐</span> Create a sample prescription so there is real data to show</li>
+    <li><span class="check">☐</span> Add some medicines to the pharmacy inventory</li>
+    <li><span class="check">☐</span> Make sure your internet connection is stable (Firebase needs internet)</li>
+    <li><span class="check">☐</span> Read sections 4 and 6 of this guide at least twice</li>
+    <li><span class="check">☐</span> Practice the demo once alone, timing yourself</li>
+  </ul>
+
+  <h3>On the Day</h3>
+  <ul class="checklist">
+    <li><span class="check">☐</span> Start <code>npm run dev</code> before the meeting begins</li>
+    <li><span class="check">☐</span> Keep your browser zoom at a comfortable level (120% works well)</li>
+    <li><span class="check">☐</span> Close all other browser tabs to avoid distractions</li>
+    <li><span class="check">☐</span> Have VS Code open with the project in case your mentor wants to see code</li>
+    <li><span class="check">☐</span> Keep this PDF guide open on a second monitor or phone for quick reference</li>
+    <li><span class="check">☐</span> Bring a notepad to write down feedback</li>
+  </ul>
+
+  <h3>Key Files to Know by Heart</h3>
+  <table>
+    <thead>
+      <tr><th>File</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>src/app/router.jsx</td><td>All routes and role guards defined here</td></tr>
+      <tr><td>src/context/AuthContext.jsx</td><td>Global auth state — user, profile, role</td></tr>
+      <tr><td>src/guards/RequireRole.jsx</td><td>Component that blocks unauthorised access</td></tr>
+      <tr><td>src/roles/doctor/components/new-prescription-form.jsx</td><td>The core prescription-writing feature</td></tr>
+      <tr><td>src/roles/pharmacy/components/pharmacist-dashboard.jsx</td><td>Pharmacy stats and quick actions</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip-box" style="margin-top:32px;">
+    <strong>Final Reminder:</strong> Your mentor is there to help you grow — not to judge you. If you don't know the answer to something, say <em>"That's a great question. I haven't explored that yet, but I'll look into it after this meeting."</em> Honesty is always better than guessing.
+  </div>
+
+</div>
+
+<!-- ── FOOTER ───────────────────────────────────────────── -->
+<div style="background:#1e1b4b; color:#a5b4fc; text-align:center; padding:24px; font-size:12px; margin-top:40px;">
+  MedFind — Prescription Finder &nbsp;|&nbsp; Mentor Presentation Guide &nbsp;|&nbsp; Prepared March 2026
+</div>
+
+</body>
+</html>

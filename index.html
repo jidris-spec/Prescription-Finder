@@ -3,7 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Medical Finder</title>
+
+    <!-- SEO -->
+    <title>MedFind - Find Medicines &amp; Manage Prescriptions</title>
+    <meta name="description" content="MedFind connects patients, doctors, and pharmacies to make medication management simple. Search medicines, manage prescriptions, and track your health." />
+    <meta name="theme-color" content="#0d9f6e" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-light-32x32.png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MedFind - Find Medicines &amp; Manage Prescriptions" />
+    <meta property="og:description" content="Connect patients, doctors, and pharmacies. Search medicines, manage prescriptions, and track your health." />
+    <meta property="og:image" content="/icon-light-32x32.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="MedFind - Find Medicines &amp; Manage Prescriptions" />
+    <meta name="twitter:description" content="Connect patients, doctors, and pharmacies for better medication management." />
+
+    <!-- Preconnect to Firebase services (eliminates DNS + TCP + TLS latency on first request) -->
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" />
+    <link rel="preconnect" href="https://securetoken.googleapis.com" />
+    <link rel="dns-prefetch" href="https://www.googleapis.com" />
+    <link rel="dns-prefetch" href="https://firebaseapp.com" />
   </head>
   <body>
     <div id="root"></div>

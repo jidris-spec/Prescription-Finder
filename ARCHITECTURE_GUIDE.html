@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>MedFind – Architecture Guide for Beginners</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 13.5px;
+  line-height: 1.8;
+  color: #1a1a2e;
+  background: #fff;
+}
+@media print {
+  .page-break { page-break-before: always; }
+  body { font-size: 12.5px; }
+}
+
+/* ── COVER ── */
+.cover {
+  background: linear-gradient(140deg, #0f3460 0%, #1a1a2e 100%);
+  color: #fff;
+  padding: 72px 72px 80px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cover .label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #818cf8; margin-bottom: 20px; }
+.cover h1 { font-size: 52px; font-weight: 900; line-height: 1.08; }
+.cover h1 em { color: #818cf8; font-style: normal; }
+.cover .sub { margin-top: 18px; font-size: 16px; color: #a5b4fc; max-width: 480px; }
+.cover .promise {
+  margin-top: 56px;
+  padding: 20px 24px;
+  background: rgba(255,255,255,0.07);
+  border-left: 4px solid #818cf8;
+  border-radius: 0 10px 10px 0;
+  max-width: 540px;
+  font-size: 14px;
+  color: #c7d2fe;
+}
+.cover .promise strong { color: #e0e7ff; }
+
+/* ── WRAPPER ── */
+.wrap { max-width: 840px; margin: 0 auto; padding: 44px 56px; }
+
+/* ── SECTION HEADING ── */
+.sec {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid #e0e7ff;
+}
+.sec .num {
+  background: #4f46e5;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sec h2 { font-size: 22px; font-weight: 800; color: #1e1b4b; }
+
+/* ── ANALOGY BOX ── */
+.analogy {
+  background: #fff7ed;
+  border: 1.5px solid #fed7aa;
+  border-radius: 12px;
+  padding: 18px 22px;
+  margin-bottom: 22px;
+  font-size: 13.5px;
+  color: #7c2d12;
+}
+.analogy strong { color: #9a3412; }
+.analogy .heading { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #c2410c; font-weight: 700; margin-bottom: 6px; }
+
+/* ── SAY THIS ── */
+.say {
+  background: #f0fdf4;
+  border-left: 4px solid #22c55e;
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: 13px;
+  color: #14532d;
+  font-style: italic;
+}
+.say::before { content: "Say to your mentor: "; font-style: normal; font-weight: 700; color: #16a34a; }
+
+/* ── INFO ── */
+.info {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: 13px;
+  color: #1e3a5f;
+}
+
+/* ── HR ── */
+hr { border: none; border-top: 2px dashed #e0e7ff; margin: 30px 0; }
+
+/* ══════════════════════════════════════
+   DIAGRAM SYSTEM
+══════════════════════════════════════ */
+
+/* Generic box */
+.box {
+  border-radius: 10px;
+  padding: 12px 18px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Arrow */
+.arr-down { text-align: center; font-size: 22px; color: #818cf8; line-height: 1.2; margin: 2px 0; }
+.arr-right { font-size: 22px; color: #818cf8; display: flex; align-items: center; }
+
+/* ── DIAGRAM: Big Picture ── */
+.big-picture {
+  border: 2px solid #e0e7ff;
+  border-radius: 16px;
+  overflow: hidden;
+  margin: 22px 0;
+}
+.bp-header {
+  background: #4f46e5;
+  color: #fff;
+  padding: 14px 20px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+.bp-body { padding: 20px; background: #f8f8ff; }
+.bp-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 8px;
+}
+.bp-box {
+  flex: 1;
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  border: 2px solid;
+}
+.bp-box.user   { background: #eff6ff; border-color: #93c5fd; color: #1e3a5f; }
+.bp-box.app    { background: #f5f3ff; border-color: #a5b4fc; color: #1e1b4b; }
+.bp-box.fb     { background: #fff7ed; border-color: #fdba74; color: #7c2d12; }
+.bp-box.db     { background: #f0fdf4; border-color: #86efac; color: #14532d; }
+.bp-arr { padding: 0 10px; color: #818cf8; font-size: 20px; font-weight: 700; }
+.bp-label { font-size: 10px; color: #9ca3af; text-align: center; margin-top: 4px; }
+
+/* ── DIAGRAM: 3-Layer ── */
+.layers { margin: 22px 0; }
+.layer {
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 4px;
+  border: 2px solid;
+  position: relative;
+}
+.layer h4 { font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+.layer p  { font-size: 12.5px; color: #6b7280; margin: 0; }
+.layer .tag {
+  position: absolute;
+  top: 10px; right: 14px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 700;
+  opacity: 0.7;
+}
+.layer.l1 { background: #eff6ff; border-color: #93c5fd; }
+.layer.l1 h4 { color: #1e3a5f; }
+.layer.l2 { background: #f5f3ff; border-color: #a5b4fc; }
+.layer.l2 h4 { color: #1e1b4b; }
+.layer.l3 { background: #fff7ed; border-color: #fdba74; }
+.layer.l3 h4 { color: #7c2d12; }
+
+/* ── DIAGRAM: Role System ── */
+.role-diagram {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 0;
+  margin: 22px 0;
+  border: 2px solid #e0e7ff;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.role-left {
+  background: #4f46e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 14px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  text-align: center;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  letter-spacing: 2px;
+}
+.role-right { padding: 16px 18px; }
+.role-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0ff;
+}
+.role-row:last-child { border-bottom: none; }
+.role-badge {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 90px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.rb-doc  { background: #dbeafe; color: #1e40af; }
+.rb-pat  { background: #dcfce7; color: #166534; }
+.rb-pha  { background: #f3e8ff; color: #6b21a8; }
+.rb-adm  { background: #ffedd5; color: #9a3412; }
+.role-row p { font-size: 12.5px; color: #4b5563; margin: 0; line-height: 1.6; }
+
+/* ── DIAGRAM: Folder Map ── */
+.folder-map {
+  background: #1e1b4b;
+  border-radius: 12px;
+  padding: 22px 26px;
+  margin: 18px 0;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 2;
+}
+.fm-root  { color: #a5b4fc; font-weight: 700; }
+.fm-folder{ color: #818cf8; }
+.fm-file  { color: #e0e7ff; }
+.fm-note  { color: #6b7280; font-size: 11.5px; }
+
+/* ── DIAGRAM: Data Flow ── */
+.flow-diagram {
+  margin: 22px 0;
+}
+.flow-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 6px;
+}
+.fs-num {
+  width: 32px; height: 32px; min-width: 32px;
+  background: #4f46e5;
+  color: #fff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.fs-body { flex: 1; }
+.fs-title { font-weight: 700; font-size: 13.5px; color: #1e1b4b; }
+.fs-desc  { font-size: 12.5px; color: #6b7280; margin-top: 2px; }
+.fs-conn  { margin-left: 46px; border-left: 2px dashed #c7d2fe; height: 18px; }
+
+/* ── DIAGRAM: Guard Flow ── */
+.guard-flow {
+  background: #f8f8ff;
+  border: 2px solid #e0e7ff;
+  border-radius: 14px;
+  padding: 22px;
+  margin: 18px 0;
+}
+.gf-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.gf-box {
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+.gf-neutral  { background: #e0e7ff; color: #1e1b4b; }
+.gf-check    { background: #4f46e5; color: #fff; }
+.gf-yes      { background: #dcfce7; color: #166534; border: 2px solid #86efac; }
+.gf-no       { background: #fee2e2; color: #991b1b; border: 2px solid #fca5a5; }
+.gf-arr      { color: #818cf8; font-size: 20px; }
+.gf-arrow-split {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  font-size: 20px;
+  color: #818cf8;
+  margin-bottom: 8px;
+}
+
+/* ── FIREBASE DIAGRAM ── */
+.firebase-diagram {
+  display: grid;
+  grid-template-columns: 1fr 80px 1fr;
+  gap: 0;
+  align-items: center;
+  margin: 18px 0;
+}
+.fb-panel {
+  border: 2px solid;
+  border-radius: 12px;
+  padding: 18px;
+}
+.fb-panel.left  { border-color: #93c5fd; background: #eff6ff; }
+.fb-panel.right { border-color: #fdba74; background: #fff7ed; }
+.fb-panel h4 { font-size: 13px; font-weight: 800; margin-bottom: 10px; }
+.fb-panel.left h4  { color: #1e3a5f; }
+.fb-panel.right h4 { color: #7c2d12; }
+.fb-panel ul { list-style: none; }
+.fb-panel ul li { font-size: 12px; color: #4b5563; padding: 3px 0; }
+.fb-panel ul li::before { content: "• "; }
+.fb-mid { text-align: center; }
+.fb-mid .arrow { font-size: 28px; color: #818cf8; }
+.fb-mid p { font-size: 10px; color: #9ca3af; margin-top: 4px; }
+
+/* ── SUMMARY TABLE ── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 18px 0; }
+th { background: #4f46e5; color: #fff; text-align: left; padding: 10px 14px; }
+td { padding: 9px 14px; border-bottom: 1px solid #e5e7eb; color: #374151; vertical-align: top; }
+tr:nth-child(even) td { background: #f5f3ff; }
+
+p { color: #374151; margin-bottom: 12px; }
+
+/* ── FOOTER ── */
+.footer {
+  background: #1e1b4b;
+  color: #818cf8;
+  text-align: center;
+  padding: 20px;
+  font-size: 11px;
+  margin-top: 40px;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ COVER ═══ -->
+<div class="cover">
+  <div class="label">Architecture Guide — For Beginners</div>
+  <h1>How Your App<br/>Is <em>Built</em></h1>
+  <p class="sub">No React knowledge needed. Diagrams, analogies, and plain English only.</p>
+  <div class="promise">
+    <strong>What this guide does:</strong> It shows you the skeleton of your app — how the pieces connect,
+    why they exist, and what each one does. After reading this you will be able to explain your
+    own architecture to your mentor with confidence.
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 1 — THE SIMPLEST POSSIBLE EXPLANATION
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">1</div>
+    <h2>The Simplest Possible Explanation</h2>
+  </div>
+
+  <div class="analogy">
+    <div class="heading">Analogy — Think of it like a restaurant</div>
+    <strong>The customer (user)</strong> sits at a table and sees only the menu and their plate.<br/>
+    <strong>The waiter (your React app)</strong> takes the order, shows results, and talks to the kitchen.<br/>
+    <strong>The kitchen (Firebase)</strong> stores all the food (data) and processes orders.<br/><br/>
+    The customer never goes into the kitchen. The kitchen doesn't talk to the customer directly.
+    The waiter (your app) is always in the middle.
+  </div>
+
+  <!-- Big picture diagram -->
+  <div class="big-picture">
+    <div class="bp-header">The Big Picture — 3 Players</div>
+    <div class="bp-body">
+
+      <div style="display:flex; align-items:center; gap:0; margin-bottom:16px;">
+        <div style="flex:1">
+          <div class="bp-box user">👤 USER<br/><span style="font-weight:400; font-size:11px;">Doctor / Patient / Pharmacist / Admin</span></div>
+          <div class="bp-label">Opens a browser</div>
+        </div>
+        <div class="bp-arr">↔</div>
+        <div style="flex:1">
+          <div class="bp-box app">💻 YOUR APP<br/><span style="font-weight:400; font-size:11px;">React (runs in the browser)</span></div>
+          <div class="bp-label">Shows pages, handles clicks</div>
+        </div>
+        <div class="bp-arr">↔</div>
+        <div style="flex:1">
+          <div class="bp-box fb">🔥 FIREBASE<br/><span style="font-weight:400; font-size:11px;">Google's cloud service</span></div>
+          <div class="bp-label">Login + stores all data</div>
+        </div>
+      </div>
+
+      <div class="info" style="margin:0; font-size:12.5px;">
+        <strong>Key point:</strong> Your app (React) lives in the browser — not on a server you built.
+        Firebase is the only server involved, and Google runs it for you. You wrote zero backend code.
+      </div>
+    </div>
+  </div>
+
+  <div class="say">
+    "The app has three layers. The user interacts with a React interface that runs in the browser. When data needs to be saved or retrieved — like a prescription or a user's role — the app talks to Firebase, which is Google's cloud service. Firebase handles both login security and the database."
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 2 — THE 3 LAYERS
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">2</div>
+    <h2>The 3 Layers of Your App</h2>
+  </div>
+
+  <p>Every web application has layers — like a building has floors. Your app has three:</p>
+
+  <div class="layers">
+
+    <div class="layer l1">
+      <div class="tag">Layer 1</div>
+      <h4>What the User Sees — The UI Layer</h4>
+      <p>
+        All the pages, buttons, forms, cards, and dashboards. This is built with
+        <strong>React</strong> (the components) and styled with <strong>Tailwind CSS</strong> (the colours and layout).
+        Think of this as the paint, furniture, and windows of a building.
+      </p>
+    </div>
+
+    <div class="arr-down">↓</div>
+
+    <div class="layer l2">
+      <div class="tag">Layer 2</div>
+      <h4>The Logic Layer — How the App Thinks</h4>
+      <p>
+        The rules that govern behaviour. Who is logged in? What role do they have?
+        Which page should they see? What happens when a form is submitted?
+        This is handled by <strong>React Context</strong> (global state), <strong>React Router</strong> (navigation),
+        and the <strong>RequireRole guard</strong> (access control).
+        Think of this as the electrical wiring and plumbing inside the walls.
+      </p>
+    </div>
+
+    <div class="arr-down">↓</div>
+
+    <div class="layer l3">
+      <div class="tag">Layer 3</div>
+      <h4>Where Data Lives — The Data Layer</h4>
+      <p>
+        All the real information: user accounts, prescriptions, medicines, inventory, orders.
+        This is stored in <strong>Firebase Firestore</strong> (the database)
+        and protected by <strong>Firebase Authentication</strong> (login system).
+        Think of this as the basement vault where everything important is kept.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="say">
+    "The app is structured in three layers. The top layer is the UI — what the user sees, built with React and styled with Tailwind. The middle layer is the logic — routing, role checking, global state. The bottom layer is Firebase — authentication and the Firestore database where all data is stored."
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 3 — THE FOLDER STRUCTURE
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">3</div>
+    <h2>How the Code Is Organised — The Folder Structure</h2>
+  </div>
+
+  <div class="analogy">
+    <div class="heading">Analogy — Think of it like an office building</div>
+    Each role has its own floor (folder). The doctor's team works on Floor 2, the pharmacy team on Floor 3.
+    Common facilities — the lobby, the elevators, the Wi-Fi — are in the <strong>shared</strong> area.
+    No team needs to go to another team's floor to do their job.
+  </div>
+
+  <div class="folder-map">
+    <div class="fm-root">📁 src/  ← All the source code lives here</div>
+    <br/>
+    <div class="fm-folder">&nbsp;&nbsp;📁 app/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;main.jsx &nbsp;&nbsp;&nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← Starts the app (the "ON" switch)</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;router.jsx &nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← The map: which URL shows which page</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;providers.jsx </div><div class="fm-note" style="display:inline">← Wraps everything so login info is available everywhere</div>
+    <br/>
+    <div class="fm-folder">&nbsp;&nbsp;📁 auth/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;pages/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← Login page, Sign up page</div>
+    <br/>
+    <div class="fm-folder">&nbsp;&nbsp;📁 context/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;AuthContext.jsx </div><div class="fm-note" style="display:inline">← The shared notice board (who is logged in, what role)</div>
+    <br/>
+    <div class="fm-folder">&nbsp;&nbsp;📁 guards/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;RequireRole.jsx </div><div class="fm-note" style="display:inline">← The security guard that blocks wrong-role users</div>
+    <br/>
+    <div class="fm-folder">&nbsp;&nbsp;📁 roles/  ← Each role has its own separate world</div>
+    <div class="fm-folder">&nbsp;&nbsp;&nbsp;&nbsp;📁 doctor/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pages/ &nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← New Prescription, Patients, Pharmacies…</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;components/ </div><div class="fm-note" style="display:inline">← UI pieces only doctors see</div>
+    <div class="fm-folder">&nbsp;&nbsp;&nbsp;&nbsp;📁 patient/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pages/ &nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← My Doctors, Dose Schedule…</div>
+    <div class="fm-folder">&nbsp;&nbsp;&nbsp;&nbsp;📁 pharmacy/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pages/ &nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← Inventory, Medicines, Orders…</div>
+    <div class="fm-folder">&nbsp;&nbsp;&nbsp;&nbsp;📁 admin/</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pages/ &nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← Users management</div>
+    <br/>
+    <div class="fm-folder">&nbsp;&nbsp;📁 shared/  ← Used by ALL roles</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;components/ </div><div class="fm-note" style="display:inline">← Sidebar, layout, buttons, cards (reused everywhere)</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;pages/ &nbsp;&nbsp;&nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← Search, Prescriptions list, Settings (all roles use these)</div>
+    <div class="fm-file">&nbsp;&nbsp;&nbsp;&nbsp;lib/ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div><div class="fm-note" style="display:inline">← Firebase connection + database helper functions</div>
+  </div>
+
+  <div class="say">
+    "I used a role-based folder structure. Instead of having one big components folder, each role has its own isolated folder with its own pages and components. Code shared by all roles — like the sidebar or the prescriptions list — lives in a shared folder. This makes it easy to find things and easy to add a new role without touching existing code."
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 4 — THE ROLE SYSTEM
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">4</div>
+    <h2>The Role System — Who Sees What</h2>
+  </div>
+
+  <div class="analogy">
+    <div class="heading">Analogy — Think of it like a hotel key card</div>
+    When you check into a hotel, your room key only opens your room and shared areas (gym, pool).
+    It does not open other guests' rooms or the staff office. Your role in MedFind works the same way —
+    it unlocks only the pages that belong to you.
+  </div>
+
+  <div class="role-diagram">
+    <div class="role-left">WHO GETS WHAT</div>
+    <div class="role-right">
+      <div class="role-row">
+        <div class="role-badge rb-doc">Doctor</div>
+        <p>Dashboard · New Prescription · Patient List · Pharmacy List · Prescriptions · Connections · Search · Settings</p>
+      </div>
+      <div class="role-row">
+        <div class="role-badge rb-pat">Patient</div>
+        <p>Dashboard · My Prescriptions · Dose Schedule · My Doctors · Search · Settings</p>
+      </div>
+      <div class="role-row">
+        <div class="role-badge rb-pha">Pharmacist</div>
+        <p>Dashboard · Inventory · Medicines · Orders · Prescriptions · Search · Settings</p>
+      </div>
+      <div class="role-row">
+        <div class="role-badge rb-adm">Admin</div>
+        <p>Dashboard · Users · Doctors · Patients · Pharmacies · Prescriptions · Search · Settings</p>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:16px;"><strong>How does the app know which role the user has?</strong></p>
+
+  <div class="flow-diagram">
+    <div class="flow-step">
+      <div class="fs-num">1</div>
+      <div class="fs-body">
+        <div class="fs-title">User signs up and picks a role</div>
+        <div class="fs-desc">When creating an account, they choose: Doctor, Patient, or Pharmacist. This role is saved in Firebase.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">2</div>
+      <div class="fs-body">
+        <div class="fs-title">On login, the app fetches the profile</div>
+        <div class="fs-desc">Firebase confirms the password. Then the app goes to Firestore and gets the user's profile — which includes their role.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">3</div>
+      <div class="fs-body">
+        <div class="fs-title">Role is stored in the global notice board (Context)</div>
+        <div class="fs-desc">The role is placed in React Context — a shared memory space. Now every part of the app can read "this user is a Doctor."</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">4</div>
+      <div class="fs-body">
+        <div class="fs-title">The correct dashboard and menu items appear</div>
+        <div class="fs-desc">The sidebar reads the role and shows only the relevant links. The wrong role's pages are never even rendered.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="say">
+    "When a user logs in, the app fetches their profile from Firestore which contains their role — doctor, patient, or pharmacist. This role is stored in a React Context so every component in the app can read it. The sidebar and the navigation then show only the menu items that belong to that role."
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 5 — THE SECURITY GUARD (RequireRole)
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">5</div>
+    <h2>The Security Guard — How Pages Are Protected</h2>
+  </div>
+
+  <div class="analogy">
+    <div class="heading">Analogy — Think of it like a bouncer at a club</div>
+    Before you enter any room, a bouncer checks your ID (your role).
+    If your ID says you're allowed in, you pass. If not, you're turned away — even if you know the address.
+    In MedFind this bouncer is a piece of code called <strong>RequireRole</strong>.
+  </div>
+
+  <div class="guard-flow">
+    <div class="gf-row">
+      <div class="gf-box gf-neutral">User navigates to a page<br/>(or types a URL manually)</div>
+    </div>
+    <div class="arr-down">↓</div>
+    <div class="gf-row">
+      <div class="gf-box gf-check">RequireRole checks:<br/>"Is this user's role allowed here?"</div>
+    </div>
+    <div class="arr-down">↓</div>
+    <div style="display:flex; justify-content:center; gap:60px; margin-bottom:8px;">
+      <div style="text-align:center;">
+        <div class="arr-down" style="margin-bottom:6px;">↙</div>
+        <div class="gf-box gf-yes">YES — role matches<br/>✓ Page loads normally</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="arr-down" style="margin-bottom:6px;">↘</div>
+        <div class="gf-box gf-no">NO — wrong role<br/>✗ Sent to Unauthorized page</div>
+      </div>
+    </div>
+  </div>
+
+  <p style="margin-top:16px;"><strong>Example — What happens if a Patient tries to access the Prescription form?</strong></p>
+
+  <div class="flow-diagram" style="margin-top:14px;">
+    <div class="flow-step">
+      <div class="fs-num" style="background:#ef4444;">!</div>
+      <div class="fs-body">
+        <div class="fs-title">Patient types <code style="background:#f1f5f9;padding:1px 6px;border-radius:4px;">/dashboard/new-prescription</code> in the browser</div>
+        <div class="fs-desc">This is a Doctor-only page.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">→</div>
+      <div class="fs-body">
+        <div class="fs-title">RequireRole runs instantly</div>
+        <div class="fs-desc">It reads the role from Context: "patient". The allowed list for this page is: ["doctor"]. No match found.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:#22c55e;">✓</div>
+      <div class="fs-body">
+        <div class="fs-title">Patient is redirected to Unauthorized page</div>
+        <div class="fs-desc">The prescription form is never shown. The data is also protected by Firebase rules — so even a direct database request would be blocked.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="say">
+    "Every protected route in the app is wrapped by a component called RequireRole. It checks the user's role from the global context before rendering any page. If the role doesn't match, the user is immediately redirected to an Unauthorized page — even if they manually type the URL. On top of that, Firebase security rules protect the database directly, so a clever user can't bypass the frontend and query the data directly either."
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 6 — FIREBASE: YOUR BACKEND
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">6</div>
+    <h2>Firebase — Your Ready-Made Backend</h2>
+  </div>
+
+  <div class="analogy">
+    <div class="heading">Analogy — Think of Firebase like a fully-equipped kitchen</div>
+    You didn't build the kitchen from scratch — you rented one that already has ovens,
+    refrigerators, and a storage room. You just put your ingredients (data) in it and
+    use the appliances (authentication, database). Firebase is Google's kitchen.
+  </div>
+
+  <div class="firebase-diagram">
+    <div class="fb-panel left">
+      <h4>Firebase Authentication</h4>
+      <ul>
+        <li>Manages email + password login</li>
+        <li>Stores passwords securely (hashed)</li>
+        <li>Issues a token when user logs in</li>
+        <li>Tells the app: "User is logged in / out"</li>
+        <li>Handles sign up, sign in, sign out</li>
+      </ul>
+    </div>
+    <div class="fb-mid">
+      <div class="arrow">↔</div>
+      <p>Your<br/>React<br/>App</p>
+    </div>
+    <div class="fb-panel right">
+      <h4>Firebase Firestore (Database)</h4>
+      <ul>
+        <li>Stores all app data as documents</li>
+        <li>Collections: profiles, prescriptions, medicines, inventory, orders</li>
+        <li>Real-time: changes appear instantly</li>
+        <li>Security rules: users can only read/write their own data</li>
+      </ul>
+    </div>
+  </div>
+
+  <p style="margin-top:20px;"><strong>What data is stored in Firestore?</strong></p>
+
+  <table>
+    <thead><tr><th>Collection (Table)</th><th>What it stores</th><th>Who uses it</th></tr></thead>
+    <tbody>
+      <tr><td><strong>profiles</strong></td><td>User info: name, email, role, verified status</td><td>Everyone (on login)</td></tr>
+      <tr><td><strong>prescriptions</strong></td><td>All prescriptions: patient, doctor, medicines, expiry date</td><td>Doctor writes, Patient reads, Pharmacy reads</td></tr>
+      <tr><td><strong>prescription_items</strong></td><td>Each medicine in a prescription (dosage, frequency, duration)</td><td>Doctor writes, Patient reads</td></tr>
+      <tr><td><strong>medicines</strong></td><td>The global medicine database (name, strength, substance)</td><td>Doctor, Pharmacist, Patient (search)</td></tr>
+      <tr><td><strong>inventory</strong></td><td>Each pharmacy's stock: quantity, price per medicine</td><td>Pharmacist manages</td></tr>
+      <tr><td><strong>orders</strong></td><td>Prescription orders sent to pharmacies</td><td>Patient creates, Pharmacist fulfills</td></tr>
+      <tr><td><strong>connections</strong></td><td>Doctor–patient relationships (approved or pending)</td><td>Doctor accepts, Patient sends</td></tr>
+    </tbody>
+  </table>
+
+  <div class="say">
+    "Firebase gives me two things: Authentication for login, and Firestore as the database. Firestore is a NoSQL cloud database — instead of tables with rows like SQL, it stores documents in collections. I have collections for profiles, prescriptions, medicines, inventory, and so on. Firebase security rules ensure users can only access their own data."
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 7 — HOW A PAGE LOADS (STEP BY STEP)
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">7</div>
+    <h2>How a Page Loads — The Full Journey</h2>
+  </div>
+
+  <p>Let's trace exactly what happens when a <strong>Doctor logs in and opens the New Prescription page</strong>. This is the complete picture of your architecture in action.</p>
+
+  <div class="flow-diagram" style="margin-top:20px;">
+    <div class="flow-step">
+      <div class="fs-num">1</div>
+      <div class="fs-body">
+        <div class="fs-title">Doctor opens the browser and goes to the app URL</div>
+        <div class="fs-desc">The browser downloads your React app. At this point, no one is logged in. The app shows the Login page.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">2</div>
+      <div class="fs-body">
+        <div class="fs-title">Doctor types email + password and clicks "Sign In"</div>
+        <div class="fs-desc">The app sends the credentials to Firebase Authentication. Firebase checks them and says "OK".</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">3</div>
+      <div class="fs-body">
+        <div class="fs-title">App fetches the doctor's profile from Firestore</div>
+        <div class="fs-desc">Using the user ID from Firebase Auth, the app reads the profile document from the "profiles" collection. It gets: name, role = "doctor", verified = true.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">4</div>
+      <div class="fs-body">
+        <div class="fs-title">Profile is saved to the global notice board (Context)</div>
+        <div class="fs-desc">Every component in the app can now read: "This is Dr. Ahmed. Role: doctor."</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">5</div>
+      <div class="fs-body">
+        <div class="fs-title">Router redirects the doctor to /dashboard</div>
+        <div class="fs-desc">The router reads the role and sends the doctor to their dashboard. The sidebar shows Doctor-specific menu items.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">6</div>
+      <div class="fs-body">
+        <div class="fs-title">Doctor clicks "New Prescription" in the sidebar</div>
+        <div class="fs-desc">The router tries to load the New Prescription page. But first, RequireRole runs.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">7</div>
+      <div class="fs-body">
+        <div class="fs-title">RequireRole checks: "Is 'doctor' in the allowed list?"</div>
+        <div class="fs-desc">Allowed list for this page: ["doctor"]. Role is "doctor". ✓ Pass.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">8</div>
+      <div class="fs-body">
+        <div class="fs-title">Page code is downloaded (lazy loading)</div>
+        <div class="fs-desc">Because this page uses lazy loading, its JavaScript file only downloads now — not when the app first loaded. A spinner shows for a moment.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num">9</div>
+      <div class="fs-body">
+        <div class="fs-title">Page fetches its data from Firestore</div>
+        <div class="fs-desc">The New Prescription page needs: the doctor's patients (from "connections" collection) and the medicine list (from "medicines" collection). These are fetched from Firestore.</div>
+      </div>
+    </div>
+    <div class="fs-conn"></div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:#22c55e;">✓</div>
+      <div class="fs-body">
+        <div class="fs-title">The form appears with the doctor's data pre-loaded</div>
+        <div class="fs-desc">Patient dropdown shows connected patients. Medicine dropdown shows the medicines database. The doctor can now write a prescription.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 8 — KEY TERMS GLOSSARY
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">8</div>
+    <h2>Key Terms — In Plain English</h2>
+  </div>
+
+  <p style="margin-bottom:18px; color:#6b7280;">These are the words your mentor might use. Know what they mean — not how to spell them in code.</p>
+
+  <table>
+    <thead><tr><th>Term</th><th>Plain English Meaning</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Component</strong></td>
+        <td>A reusable piece of the UI. Like a LEGO brick. A button is a component. A card is a component. A page is made of many components.</td>
+      </tr>
+      <tr>
+        <td><strong>Page</strong></td>
+        <td>What shows when you go to a specific URL. Made of components. Example: the New Prescription page is one big component made of smaller form components.</td>
+      </tr>
+      <tr>
+        <td><strong>Route</strong></td>
+        <td>The rule that says: "When the URL is /dashboard/prescriptions, show the Prescriptions page." Router.jsx contains all the routes.</td>
+      </tr>
+      <tr>
+        <td><strong>State</strong></td>
+        <td>Data that can change. Example: the loading spinner is shown while loading = true and hidden when loading = false. State is what makes the UI react to things happening.</td>
+      </tr>
+      <tr>
+        <td><strong>Context</strong></td>
+        <td>A global notice board that every component can read. Instead of passing the user's role through every component manually, you put it in Context once and read it anywhere.</td>
+      </tr>
+      <tr>
+        <td><strong>Props</strong></td>
+        <td>Data passed from a parent component to a child. Like giving instructions when you ask someone to do a job: "Here is the list of patients — show them in a dropdown."</td>
+      </tr>
+      <tr>
+        <td><strong>Hook</strong></td>
+        <td>A special React function that lets a component do something — like remember data (useState), fetch data when the page loads (useEffect), or read from the global notice board (useContext).</td>
+      </tr>
+      <tr>
+        <td><strong>Lazy Loading</strong></td>
+        <td>Only download the code for a page when the user actually visits it. Keeps the app fast on first load.</td>
+      </tr>
+      <tr>
+        <td><strong>Guard / RequireRole</strong></td>
+        <td>A component that checks your role before letting you into a page. Like a bouncer with a guest list.</td>
+      </tr>
+      <tr>
+        <td><strong>Firestore</strong></td>
+        <td>Firebase's database. Stores data as "documents" inside "collections" (like files inside folders). Everything in your app — prescriptions, profiles, medicines — is a document.</td>
+      </tr>
+      <tr>
+        <td><strong>Authentication</strong></td>
+        <td>"Who are you?" — Verifying the user's identity via email and password login.</td>
+      </tr>
+      <tr>
+        <td><strong>Authorization</strong></td>
+        <td>"What are you allowed to do?" — Checking the user's role to decide which pages and data they can access.</td>
+      </tr>
+      <tr>
+        <td><strong>NoSQL</strong></td>
+        <td>A type of database that stores flexible documents instead of rigid rows and columns. Firestore is NoSQL.</td>
+      </tr>
+      <tr>
+        <td><strong>Async / Await</strong></td>
+        <td>When the app needs to wait for something (like Firebase to reply), it uses async/await. The rest of the app keeps working while it waits — it does not freeze.</td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 9 — ARCHITECTURE SUMMARY
+═══════════════════════════════════════════════════ -->
+<div class="page-break"></div>
+<div class="wrap">
+
+  <div class="sec">
+    <div class="num">9</div>
+    <h2>Architecture Summary — One Page</h2>
+  </div>
+
+  <p style="margin-bottom:20px;">Everything on one diagram. If your mentor asks "walk me through your architecture", point at this.</p>
+
+  <!-- FULL ARCHITECTURE DIAGRAM -->
+  <div style="border:2px solid #e0e7ff; border-radius:16px; overflow:hidden; margin:0 0 24px;">
+
+    <!-- Title bar -->
+    <div style="background:#4f46e5; color:#fff; padding:14px 20px; font-weight:800; font-size:15px;">
+      MedFind — Full Architecture Overview
+    </div>
+
+    <div style="padding:24px; background:#f8f8ff;">
+
+      <!-- Row 1: User types -->
+      <div style="display:flex; gap:8px; margin-bottom:4px;">
+        <div style="flex:1; background:#dbeafe; border:2px solid #93c5fd; border-radius:8px; padding:10px; text-align:center; font-size:12px; font-weight:700; color:#1e3a5f;">👨‍⚕️ Doctor</div>
+        <div style="flex:1; background:#dcfce7; border:2px solid #86efac; border-radius:8px; padding:10px; text-align:center; font-size:12px; font-weight:700; color:#166534;">🧑 Patient</div>
+        <div style="flex:1; background:#f3e8ff; border:2px solid #d8b4fe; border-radius:8px; padding:10px; text-align:center; font-size:12px; font-weight:700; color:#6b21a8;">💊 Pharmacist</div>
+        <div style="flex:1; background:#ffedd5; border:2px solid #fdba74; border-radius:8px; padding:10px; text-align:center; font-size:12px; font-weight:700; color:#9a3412;">🛡 Admin</div>
+      </div>
+
+      <div class="arr-down">↓ logs in via</div>
+
+      <!-- Row 2: Login -->
+      <div style="background:#fff; border:2px solid #c7d2fe; border-radius:8px; padding:12px 16px; text-align:center; margin-bottom:4px;">
+        <strong style="color:#3730a3;">Login Page</strong>
+        <span style="color:#6b7280; font-size:12px;"> — Email + Password → Firebase Authentication confirms identity</span>
+      </div>
+
+      <div class="arr-down">↓ identity confirmed → fetch profile from</div>
+
+      <!-- Row 3: Firestore -->
+      <div style="background:#fff7ed; border:2px solid #fdba74; border-radius:8px; padding:12px 16px; text-align:center; margin-bottom:4px;">
+        <strong style="color:#9a3412;">🔥 Firebase Firestore — profiles collection</strong>
+        <span style="color:#6b7280; font-size:12px;"> — gets: name, role, verified status</span>
+      </div>
+
+      <div class="arr-down">↓ role stored in</div>
+
+      <!-- Row 4: Context -->
+      <div style="background:#f5f3ff; border:2px solid #a5b4fc; border-radius:8px; padding:12px 16px; text-align:center; margin-bottom:4px;">
+        <strong style="color:#1e1b4b;">React Context (Global Notice Board)</strong>
+        <span style="color:#6b7280; font-size:12px;"> — role available to every part of the app</span>
+      </div>
+
+      <div class="arr-down">↓ router reads role → sends user to</div>
+
+      <!-- Row 5: Dashboard + Guard -->
+      <div style="display:flex; gap:8px; margin-bottom:4px; align-items:stretch;">
+        <div style="flex:1; background:#fff; border:2px solid #e0e7ff; border-radius:8px; padding:12px;">
+          <div style="font-weight:700; color:#1e1b4b; font-size:12px; margin-bottom:6px;">Dashboard Layout</div>
+          <div style="font-size:11px; color:#6b7280;">Sidebar · Header · Main content area</div>
+        </div>
+        <div style="display:flex; align-items:center; color:#818cf8; font-size:20px;">+</div>
+        <div style="flex:1; background:#fee2e2; border:2px solid #fca5a5; border-radius:8px; padding:12px;">
+          <div style="font-weight:700; color:#991b1b; font-size:12px; margin-bottom:6px;">RequireRole Guard</div>
+          <div style="font-size:11px; color:#6b7280;">Checks role before every page loads</div>
+        </div>
+      </div>
+
+      <div class="arr-down">↓ correct role → shows</div>
+
+      <!-- Row 6: Role Pages -->
+      <div style="display:flex; gap:8px; margin-bottom:4px;">
+        <div style="flex:1; background:#dbeafe; border:2px solid #93c5fd; border-radius:8px; padding:10px; font-size:11px; color:#1e3a5f;">
+          <strong>Doctor Pages</strong><br/>New Prescription<br/>Patients · Pharmacies<br/>Connections
+        </div>
+        <div style="flex:1; background:#dcfce7; border:2px solid #86efac; border-radius:8px; padding:10px; font-size:11px; color:#166534;">
+          <strong>Patient Pages</strong><br/>Prescriptions<br/>Dose Schedule<br/>My Doctors
+        </div>
+        <div style="flex:1; background:#f3e8ff; border:2px solid #d8b4fe; border-radius:8px; padding:10px; font-size:11px; color:#6b21a8;">
+          <strong>Pharmacy Pages</strong><br/>Inventory · Medicines<br/>Orders
+        </div>
+        <div style="flex:1; background:#ffedd5; border:2px solid #fdba74; border-radius:8px; padding:10px; font-size:11px; color:#9a3412;">
+          <strong>Admin Pages</strong><br/>Users Manager
+        </div>
+      </div>
+
+      <div class="arr-down">↓ pages read & write data from</div>
+
+      <!-- Row 7: Firestore collections -->
+      <div style="background:#fff7ed; border:2px solid #fdba74; border-radius:8px; padding:14px 18px; margin-bottom:4px;">
+        <strong style="color:#9a3412;">🔥 Firebase Firestore Collections</strong><br/>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:8px;">
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">profiles</span>
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">prescriptions</span>
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">prescription_items</span>
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">medicines</span>
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">inventory</span>
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">orders</span>
+          <span style="background:#ffedd5; border:1px solid #fdba74; border-radius:6px; padding:3px 10px; font-size:11px; color:#7c2d12;">connections</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="say">
+    "The user logs in through Firebase Authentication. The app then fetches their profile and role from Firestore and stores it in React Context. The router redirects them to their dashboard, and every page is wrapped in a role guard that checks the role before rendering. When a page loads, it fetches its specific data from Firestore collections — prescriptions, medicines, inventory, and so on."
+  </div>
+
+</div>
+
+
+<div class="footer">
+  MedFind — Architecture Guide for Beginners &nbsp;|&nbsp; March 2026
+</div>
+
+</body>
+</html>

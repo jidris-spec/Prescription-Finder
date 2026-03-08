@@ -119,8 +119,12 @@ export function DashboardNav({ user, profile }) {
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2">
-                <div className="p-1.5 bg-primary/10 rounded-full">
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2"
+                aria-label={`User menu for ${profile?.full_name || user?.email}`}
+              >
+                <div className="p-1.5 bg-primary/10 rounded-full" aria-hidden="true">
                   <RoleIcon className="h-4 w-4 text-primary" />
                 </div>
                 <span className="hidden sm:inline text-sm">

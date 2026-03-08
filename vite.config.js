@@ -9,6 +9,13 @@ const __dirname = path.dirname(__filename)
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
+  // Only expose VITE_-prefixed vars to the client bundle
+  const clientEnv = Object.fromEntries(
+    Object.entries(env)
+      .filter(([key]) => key.startsWith('VITE_'))
+      .map(([key, val]) => [`import.meta.env.${key}`, JSON.stringify(val)])
+  )
+
   return {
     plugins: [react()],
     resolve: {
@@ -20,8 +27,21 @@ export default defineConfig(({ mode }) => {
     server: {
       port: 3000,
     },
-    define: {
-      'import.meta.env': env,
+    define: clientEnv,
+    build: {
+      target: 'es2020',
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules/firebase')) return 'firebase'
+            if (id.includes('node_modules/@radix-ui')) return 'ui-vendor'
+            if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'charts'
+            if (id.includes('node_modules/react-router')) return 'router'
+            if (id.includes('node_modules')) return 'vendor'
+          },
+        },
+      },
     },
   }
 })
