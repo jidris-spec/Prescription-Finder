@@ -17,11 +17,12 @@ export const inventoryCollection = collection(db, 'pharmacy_inventory')
 export async function getInventoryByPharmacy(pharmacyId) {
   const q = query(
     inventoryCollection,
-    where('pharmacy_id', '==', pharmacyId),
-    orderBy('updated_at', 'desc')
+    where('pharmacy_id', '==', pharmacyId)
   )
   const snapshot = await getDocs(q)
-  const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  const items = snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''))
 
   const itemsWithMedicines = await Promise.all(
     items.map(async (item) => {
@@ -56,11 +57,12 @@ export async function searchPharmaciesWithMedicine(medicineId) {
   const { getPharmacy } = await import('./pharmacies')
   const q = query(
     inventoryCollection,
-    where('medicine_id', '==', medicineId),
-    where('quantity', '>', 0)
+    where('medicine_id', '==', medicineId)
   )
   const snapshot = await getDocs(q)
-  const inventoryItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  const inventoryItems = snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .filter(item => item.quantity > 0)
 
   const results = await Promise.all(
     inventoryItems.map(async (item) => {

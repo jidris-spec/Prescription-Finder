@@ -24,21 +24,23 @@ export async function getPrescription(prescriptionId) {
 export async function getPrescriptionsByPatient(patientId) {
   const q = query(
     prescriptionsCollection,
-    where('patient_id', '==', patientId),
-    orderBy('created_at', 'desc')
+    where('patient_id', '==', patientId)
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
 }
 
 export async function getPrescriptionsByDoctor(doctorId) {
   const q = query(
     prescriptionsCollection,
-    where('doctor_id', '==', doctorId),
-    orderBy('created_at', 'desc')
+    where('doctor_id', '==', doctorId)
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
 }
 
 export async function createPrescription(data) {
@@ -59,11 +61,12 @@ export async function updatePrescription(prescriptionId, data) {
 export async function getAllActivePrescriptions() {
   const q = query(
     prescriptionsCollection,
-    where('status', '==', 'active'),
-    orderBy('created_at', 'desc')
+    where('status', '==', 'active')
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
 }
 
 export async function getPrescriptionItems(prescriptionId) {

@@ -48,15 +48,17 @@ const navItemsByRole = {
   ],
   doctor: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-    { href: '/dashboard/search', label: 'Medicines', icon: Search },
+    { href: '/dashboard/connections', label: 'Requests', icon: ClipboardList },
     { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: FileText },
     { href: '/dashboard/patients', label: 'Patients', icon: Users },
+    { href: '/dashboard/search', label: 'Medicines', icon: Search },
   ],
   pharmacist: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/medicines', label: 'Medicine DB', icon: Pill },
     { href: '/dashboard/inventory', label: 'Inventory', icon: Package },
     { href: '/dashboard/orders', label: 'Orders', icon: ClipboardList },
-    { href: '/dashboard/search', label: 'Medicines', icon: Search },
+    { href: '/dashboard/search', label: 'Search', icon: Search },
   ],
   admin: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },

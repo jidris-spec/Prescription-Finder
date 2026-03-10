@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
-import { getAllDoctors } from '@/shared/lib/firebase/db'
+import { getAllDoctors, getProfile } from '@/shared/lib/firebase/db'
 import { useAuth } from '@/context/AuthContext'
 import { DoctorsManager } from '../components/doctors-manager'
 import { Loader2 } from 'lucide-react'
@@ -18,7 +18,13 @@ export default function DoctorsPage() {
 
     try {
       const data = await getAllDoctors()
-      setDoctors(data || [])
+      const doctorsWithProfiles = await Promise.all(
+        (data || []).map(async (doctor) => {
+          const profile = await getProfile(doctor.user_id)
+          return { ...doctor, profiles: profile || {} }
+        })
+      )
+      setDoctors(doctorsWithProfiles)
     } catch (error) {
       console.error('Error fetching doctors:', error)
       setDoctors([])

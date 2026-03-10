@@ -4,12 +4,61 @@ import { addInventoryItem, updateInventoryItem, deleteInventoryItem } from '@/sh
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent } from '@/components/ui/card'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Package, AlertCircle, Loader2, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Package, AlertCircle, Loader2, Pencil, Trash2, ChevronsUpDown, Check } from 'lucide-react'
+import { cn } from '@/shared/lib/utils/cn'
+
+function MedicineCombobox({ medicines, value, onChange }) {
+  const [open, setOpen] = useState(false)
+  const selected = medicines.find((m) => m.id === value)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen} modal={false}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {selected
+            ? `${selected.name || selected.brand_name}${selected.strength ? ` (${selected.strength})` : ''}`
+            : 'Select medicine'}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }} align="start">
+        <Command>
+          <CommandInput placeholder="Search medicine..." />
+          <CommandList>
+            <CommandEmpty>No medicine found.</CommandEmpty>
+            <CommandGroup>
+              {medicines.map((m) => (
+                <CommandItem
+                  key={m.id}
+                  value={`${m.name || m.brand_name || ''} ${m.strength || ''}`}
+                  onSelect={() => {
+                    onChange(m.id)
+                    setOpen(false)
+                  }}
+                >
+                  <Check className={cn('mr-2 h-4 w-4', value === m.id ? 'opacity-100' : 'opacity-0')} />
+                  {m.name || m.brand_name}
+                  {m.strength && <span className="ml-1 text-muted-foreground">({m.strength})</span>}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 export function InventoryManager({ pharmacy, inventory, medicines, onRefresh }) {
   const navigate = useNavigate()
@@ -118,20 +167,28 @@ export function InventoryManager({ pharmacy, inventory, medicines, onRefresh }) 
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 pt-4">
+              {medicines.length === 0 && (
+                <div className="p-3 text-sm rounded-md bg-orange-100 text-orange-800 flex items-start gap-2">
+                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
+                  <span>
+                    No medicines in the catalog yet.{' '}
+                    <button
+                      className="underline font-medium"
+                      onClick={() => { setIsAddOpen(false); navigate('/dashboard/medicines') }}
+                    >
+                      Go to Medicines
+                    </button>{' '}
+                    to add medicines first, then come back to add them to inventory.
+                  </span>
+                </div>
+              )}
               <div className="space-y-2">
                 <Label>Medicine</Label>
-                <Select value={medicineId} onValueChange={setMedicineId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select medicine" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availableMedicines.map((m) => (
-                      <SelectItem key={m.id} value={m.id}>
-                        {m.name || m.brand_name} {m.strength && `(${m.strength})`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MedicineCombobox
+                  medicines={availableMedicines}
+                  value={medicineId}
+                  onChange={setMedicineId}
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

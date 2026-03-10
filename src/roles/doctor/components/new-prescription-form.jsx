@@ -7,7 +7,58 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Loader2, AlertCircle, CheckCircle, Plus, X } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
+import { Loader2, AlertCircle, CheckCircle, Plus, X, ChevronsUpDown, Check } from 'lucide-react'
+import { cn } from '@/shared/lib/utils/cn'
+
+function MedicineCombobox({ medicines, value, onChange }) {
+  const [open, setOpen] = useState(false)
+  const selected = medicines.find((m) => m.id === value)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          {selected
+            ? `${selected.name}${selected.strength ? ` (${selected.strength})` : ''}`
+            : 'Select a medicine'}
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-full p-0" align="start">
+        <Command>
+          <CommandInput placeholder="Search medicine..." />
+          <CommandList>
+            <CommandEmpty>No medicine found.</CommandEmpty>
+            <CommandGroup>
+              {medicines.map((medicine) => (
+                <CommandItem
+                  key={medicine.id}
+                  value={`${medicine.name} ${medicine.strength || ''} ${medicine.active_substance || ''}`}
+                  onSelect={() => {
+                    onChange(medicine.id)
+                    setOpen(false)
+                  }}
+                >
+                  <Check className={cn('mr-2 h-4 w-4', value === medicine.id ? 'opacity-100' : 'opacity-0')} />
+                  {medicine.name}
+                  {medicine.strength && <span className="ml-1 text-muted-foreground">({medicine.strength})</span>}
+                  {medicine.active_substance && <span className="ml-1 text-muted-foreground">- {medicine.active_substance}</span>}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
+}
 
 function parseDurationDays(duration) {
   if (!duration) return 30
@@ -224,23 +275,11 @@ export function NewPrescriptionForm({ doctor, medicines, patients }) {
                 </div>
 
                 <div className="space-y-2">
-                  <Select
+                  <MedicineCombobox
+                    medicines={medicines}
                     value={row.medicineId}
-                    onValueChange={(val) => updateMedicineRow(index, 'medicineId', val)}
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a medicine" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {medicines.map((medicine) => (
-                        <SelectItem key={medicine.id} value={medicine.id}>
-                          {medicine.name} {medicine.strength && `(${medicine.strength})`}
-                          {medicine.active_substance && ` - ${medicine.active_substance}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(val) => updateMedicineRow(index, 'medicineId', val)}
+                  />
                 </div>
 
                 <div className="grid md:grid-cols-3 gap-3">
