@@ -15,21 +15,23 @@ export const ordersCollection = collection(db, 'orders')
 export async function getOrdersByPharmacy(pharmacyId) {
   const q = query(
     ordersCollection,
-    where('pharmacy_id', '==', pharmacyId),
-    orderBy('created_at', 'desc')
+    where('pharmacy_id', '==', pharmacyId)
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
 }
 
 export async function getOrdersByPatient(patientId) {
   const q = query(
     ordersCollection,
-    where('patient_id', '==', patientId),
-    orderBy('created_at', 'desc')
+    where('patient_id', '==', patientId)
   )
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  return snapshot.docs
+    .map(doc => ({ id: doc.id, ...doc.data() }))
+    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
 }
 
 export async function createOrder(data) {

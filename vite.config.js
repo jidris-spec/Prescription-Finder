@@ -36,8 +36,10 @@ export default defineConfig(({ mode }) => {
           manualChunks(id) {
             if (id.includes('node_modules/firebase')) return 'firebase'
             if (id.includes('node_modules/@radix-ui')) return 'ui-vendor'
+            if (id.includes('node_modules/lucide-react')) return 'icons'
             if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'charts'
             if (id.includes('node_modules/react-router')) return 'router'
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react'
             if (id.includes('node_modules')) return 'vendor'
           },
         },

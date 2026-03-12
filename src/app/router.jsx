@@ -5,14 +5,15 @@ import RequireRole from "@/guards/RequireRole.jsx";
 import { normalizeRole } from "@/shared/lib/utils/roles";
 import LoadingFallback from "@/shared/components/common/LoadingFallback.jsx";
 
-// --- Eager imports (critical path: public pages + layout shell) ---
-import HomePage from "@/shared/pages/HomePage.jsx";
-import Login from "@/auth/pages/LoginPage.jsx";
-import UnauthorizedPage from "@/shared/pages/UnauthorizedPage.jsx";
-import DashboardLayout from "@/shared/components/layout/DashboardLayout.jsx";
-
 // --- Lazy imports (loaded on demand) ---
+const HomePage            = lazy(() => import("@/shared/pages/HomePage.jsx"));
+const Login               = lazy(() => import("@/auth/pages/LoginPage.jsx"));
+const UnauthorizedPage    = lazy(() => import("@/shared/pages/UnauthorizedPage.jsx"));
+const DashboardLayout     = lazy(() => import("@/shared/components/layout/DashboardLayout.jsx"));
 const SignUp              = lazy(() => import("@/auth/pages/SignUpPage.jsx"));
+const SignUpSuccess        = lazy(() => import("@/auth/pages/SignUpSuccessPage.jsx"));
+const AuthCallback        = lazy(() => import("@/auth/pages/AuthCallbackPage.jsx"));
+const AuthError           = lazy(() => import("@/auth/pages/AuthErrorPage.jsx"));
 const DashboardHomePage   = lazy(() => import("@/shared/pages/DashboardHomePage.jsx"));
 const PrescriptionsPage   = lazy(() => import("@/shared/pages/PrescriptionsPage.jsx"));
 const SearchPage          = lazy(() => import("@/shared/pages/SearchPage.jsx"));
@@ -61,9 +62,30 @@ const router = createBrowserRouter([
   { path: "/", element: <RoleRedirect /> },
 
   // Public pages
-  { path: "/home", element: <HomePage /> },
-  { path: "/login", element: <Login /> },
-  { path: "/auth/login", element: <Login /> },
+  {
+    path: "/home",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <HomePage />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/login",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Login />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/login",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Login />
+      </Suspense>
+    ),
+  },
   {
     path: "/auth/sign-up",
     element: (
@@ -72,14 +94,47 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
-  { path: "/unauthorized", element: <UnauthorizedPage /> },
+  {
+    path: "/auth/sign-up/success",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <SignUpSuccess />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/callback",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AuthCallback />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/error",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AuthError />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/unauthorized",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <UnauthorizedPage />
+      </Suspense>
+    ),
+  },
 
   // Dashboard (nested)
   {
     path: "/dashboard",
     element: (
       <RequireRole allow={["doctor", "patient", "pharmacy", "admin"]}>
-        <DashboardLayout />
+        <Suspense fallback={<LoadingFallback />}>
+          <DashboardLayout />
+        </Suspense>
       </RequireRole>
     ),
     children: [
