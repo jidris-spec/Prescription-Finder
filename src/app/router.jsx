@@ -5,65 +5,62 @@ import RequireRole from "@/guards/RequireRole.jsx";
 import { normalizeRole } from "@/shared/lib/utils/roles";
 import LoadingFallback from "@/shared/components/common/LoadingFallback.jsx";
 
-// --- Eager imports (critical path: public pages + layout shell) ---
+// --- Eager imports ---
 import HomePage from "@/shared/pages/HomePage.jsx";
 import Login from "@/auth/pages/LoginPage.jsx";
 import UnauthorizedPage from "@/shared/pages/UnauthorizedPage.jsx";
 import DashboardLayout from "@/shared/components/layout/DashboardLayout.jsx";
 
-// --- Lazy imports (loaded on demand) ---
-const SignUp              = lazy(() => import("@/auth/pages/SignUpPage.jsx"));
-const DashboardHomePage   = lazy(() => import("@/shared/pages/DashboardHomePage.jsx"));
-const PrescriptionsPage   = lazy(() => import("@/shared/pages/PrescriptionsPage.jsx"));
-const SearchPage          = lazy(() => import("@/shared/pages/SearchPage.jsx"));
-const SettingsPage        = lazy(() => import("@/shared/pages/SettingsPage.jsx"));
+// --- Lazy imports ---
+const SignUp = lazy(() => import("@/auth/pages/SignUpPage.jsx"));
+const DashboardHomePage = lazy(() => import("@/shared/pages/DashboardHomePage.jsx"));
+const PrescriptionsPage = lazy(() => import("@/shared/pages/PrescriptionsPage.jsx"));
+const SearchPage = lazy(() => import("@/shared/pages/SearchPage.jsx"));
+const SettingsPage = lazy(() => import("@/shared/pages/SettingsPage.jsx"));
 
 // Doctor
 const NewPrescriptionPage = lazy(() => import("@/roles/doctor/pages/NewPrescriptionPage.jsx"));
-const DoctorsPage         = lazy(() => import("@/roles/doctor/pages/DoctorsPage.jsx"));
-const PatientsPage        = lazy(() => import("@/roles/doctor/pages/PatientsPage.jsx"));
-const PharmaciesPage      = lazy(() => import("@/roles/doctor/pages/PharmaciesPage.jsx"));
-const ConnectionsPage     = lazy(() => import("@/roles/doctor/pages/ConnectionsPage.jsx"));
+const DoctorsPage = lazy(() => import("@/roles/doctor/pages/DoctorsPage.jsx"));
+const PatientsPage = lazy(() => import("@/roles/doctor/pages/PatientsPage.jsx"));
+const PharmaciesPage = lazy(() => import("@/roles/doctor/pages/PharmaciesPage.jsx"));
+const ConnectionsPage = lazy(() => import("@/roles/doctor/pages/ConnectionsPage.jsx"));
 
 // Patient
-const MyDoctorsPage       = lazy(() => import("@/roles/patient/pages/MyDoctorsPage.jsx"));
-const SchedulePage        = lazy(() => import("@/roles/patient/pages/SchedulePage.jsx"));
+const MyDoctorsPage = lazy(() => import("@/roles/patient/pages/MyDoctorsPage.jsx"));
+const SchedulePage = lazy(() => import("@/roles/patient/pages/SchedulePage.jsx"));
 
 // Pharmacy
-const InventoryPage       = lazy(() => import("@/roles/pharmacy/pages/InventoryPage.jsx"));
-const MedicinesPage       = lazy(() => import("@/roles/pharmacy/pages/MedicinesPage.jsx"));
-const OrdersPage          = lazy(() => import("@/roles/pharmacy/pages/OrdersPage.jsx"));
+const InventoryPage = lazy(() => import("@/roles/pharmacy/pages/InventoryPage.jsx"));
+const MedicinesPage = lazy(() => import("@/roles/pharmacy/pages/MedicinesPage.jsx"));
+const OrdersPage = lazy(() => import("@/roles/pharmacy/pages/OrdersPage.jsx"));
 
 // Admin
-const UsersPage           = lazy(() => import("@/roles/admin/pages/UsersPage.jsx"));
+const UsersPage = lazy(() => import("@/roles/admin/pages/UsersPage.jsx"));
 
-// Redirect user to the right dashboard based on role
 function RoleRedirect() {
   const { loading, user, profile } = useAuth();
 
   if (loading) return <LoadingFallback />;
-  if (!user) return <Navigate to="/login" replace />;
 
-  const role = profile?.role;
-  const r = normalizeRole(role)
-  if (r === "doctor") return <Navigate to="/dashboard" replace />;
-  if (r === "patient") return <Navigate to="/dashboard" replace />;
-  if (r === "pharmacist") return <Navigate to="/dashboard" replace />;
+  if (!user) {
+    return <Navigate to="/auth/login" replace />;
+  }
 
-  // If role is missing or unknown, send to dashboard so RequireRole
-  // can show a helpful "Missing profile/role" message instead of
-  // the generic Unauthorized page.
-  return <Navigate to="/dashboard" replace />;
+  const role = normalizeRole(profile?.role);
+
+  if (["doctor", "patient", "pharmacy", "admin"].includes(role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Navigate to="/unauthorized" replace />;
 }
 
 const router = createBrowserRouter([
-  // Root
-  // { path: "/", element: <RoleRedirect /> },
-
   // Public pages
   { path: "/", element: <HomePage /> },
-  // { path: "/login", element: <Login /> },
+
   { path: "/auth/login", element: <Login /> },
+
   {
     path: "/auth/sign-up",
     element: (
@@ -72,9 +69,10 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
+
   { path: "/unauthorized", element: <UnauthorizedPage /> },
 
-  // Dashboard (nested)
+  // Dashboard
   {
     path: "/dashboard",
     element: (
@@ -82,6 +80,7 @@ const router = createBrowserRouter([
         <DashboardLayout />
       </RequireRole>
     ),
+
     children: [
       {
         index: true,
@@ -92,7 +91,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Doctor-only
       {
         path: "new-prescription",
         element: (
@@ -103,6 +101,7 @@ const router = createBrowserRouter([
           </RequireRole>
         ),
       },
+
       {
         path: "doctors",
         element: (
@@ -113,6 +112,7 @@ const router = createBrowserRouter([
           </RequireRole>
         ),
       },
+
       {
         path: "patients",
         element: (
@@ -123,6 +123,7 @@ const router = createBrowserRouter([
           </RequireRole>
         ),
       },
+
       {
         path: "pharmacies",
         element: (
@@ -134,7 +135,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Doctor + pharmacy
       {
         path: "prescriptions",
         element: (
@@ -146,7 +146,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Pharmacy-only
       {
         path: "inventory",
         element: (
@@ -157,6 +156,7 @@ const router = createBrowserRouter([
           </RequireRole>
         ),
       },
+
       {
         path: "medicines",
         element: (
@@ -168,29 +168,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Patient-only
-      {
-        path: "my-doctors",
-        element: (
-          <RequireRole allow={["patient"]}>
-            <Suspense fallback={<LoadingFallback />}>
-              <MyDoctorsPage />
-            </Suspense>
-          </RequireRole>
-        ),
-      },
-      {
-        path: "schedule",
-        element: (
-          <RequireRole allow={["patient"]}>
-            <Suspense fallback={<LoadingFallback />}>
-              <SchedulePage />
-            </Suspense>
-          </RequireRole>
-        ),
-      },
-
-      // Pharmacy-only: orders
       {
         path: "orders",
         element: (
@@ -202,7 +179,28 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Doctor-only: connection requests
+      {
+        path: "my-doctors",
+        element: (
+          <RequireRole allow={["patient"]}>
+            <Suspense fallback={<LoadingFallback />}>
+              <MyDoctorsPage />
+            </Suspense>
+          </RequireRole>
+        ),
+      },
+
+      {
+        path: "schedule",
+        element: (
+          <RequireRole allow={["patient"]}>
+            <Suspense fallback={<LoadingFallback />}>
+              <SchedulePage />
+            </Suspense>
+          </RequireRole>
+        ),
+      },
+
       {
         path: "connections",
         element: (
@@ -214,7 +212,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Shared for all logged-in roles
       {
         path: "search",
         element: (
@@ -225,6 +222,7 @@ const router = createBrowserRouter([
           </RequireRole>
         ),
       },
+
       {
         path: "settings",
         element: (
@@ -236,7 +234,6 @@ const router = createBrowserRouter([
         ),
       },
 
-      // Admin-only
       {
         path: "users",
         element: (
@@ -250,7 +247,6 @@ const router = createBrowserRouter([
     ],
   },
 
-  // Catch-all
   { path: "*", element: <Navigate to="/" replace /> },
 ]);
 
