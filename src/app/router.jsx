@@ -58,11 +58,11 @@ function RoleRedirect() {
 
 const router = createBrowserRouter([
   // Root
-  { path: "/", element: <RoleRedirect /> },
+  // { path: "/", element: <RoleRedirect /> },
 
   // Public pages
-  { path: "/home", element: <HomePage /> },
-  { path: "/login", element: <Login /> },
+  { path: "/", element: <HomePage /> },
+  // { path: "/login", element: <Login /> },
   { path: "/auth/login", element: <Login /> },
   {
     path: "/auth/sign-up",

@@ -49,8 +49,9 @@ export async function searchMedicines(searchTerm) {
   const term = searchTerm.toLowerCase()
   return medicines.filter(m =>
     m.name?.toLowerCase().includes(term) ||
-    m.brand_name?.toLowerCase().includes(term) ||
-    m.active_substance?.toLowerCase().includes(term)
+    m.brand?.toLowerCase().includes(term) ||
+    m.generic_name?.toLowerCase().includes(term) ||
+    m.category?.toLowerCase().includes(term)
   )
 }
 
