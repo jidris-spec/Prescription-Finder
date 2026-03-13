@@ -3,12 +3,9 @@ MENTOR_ESSENTIALS.pdf
 ARCHITECTURE_GUIDE.pdf
 MedFind_Architecture_Guide.pdf
 PRESENTATION_Guide.pdf
-<<<<<<< Updated upstream
-LICENSE 
+README.md
+LICENSE
 .env
 .env.local
 .env.development
 .env.production
-=======
-LICENSE 
->>>>>>> Stashed changes
