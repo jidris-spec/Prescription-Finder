@@ -5,3 +5,7 @@ MedFind_Architecture_Guide.pdf
 PRESENTATION_Guide.pdf
 README.md
 LICENSE 
+.env
+.env.local
+.env.development
+.env.production
