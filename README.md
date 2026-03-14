@@ -1,8 +1,7 @@
 Medication Finder
 
 Live Demo
-[(link)
-](https://app.netlify.com/projects/prescription-finder/overview)
+https://prescription-finder.netlify.app/
 Tech Stack
 React
 Firebase
