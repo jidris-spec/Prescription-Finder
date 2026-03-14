@@ -7,7 +7,8 @@ import {
   updateDoc,
   query,
   where,
-  onSnapshot
+  onSnapshot,
+  orderBy
 } from "firebase/firestore"
 import { db } from "../client"
 import { getMedicine } from "./medicines"
@@ -22,14 +23,15 @@ function mapDocs(snapshot) {
   }))
 }
 
-function sortByDate(docs) {
-  return docs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-}
-
 async function getPrescriptionsByField(field, value) {
-  const q = query(prescriptionsCollection, where(field, "==", value))
+  const q = query(
+    prescriptionsCollection,
+    where(field, "==", value),
+    orderBy("created_at", "desc")
+  )
+
   const snapshot = await getDocs(q)
-  return sortByDate(mapDocs(snapshot))
+  return mapDocs(snapshot)
 }
 
 export function getPrescriptionsByPatient(patientId) {
@@ -41,9 +43,14 @@ export function getPrescriptionsByDoctor(doctorId) {
 }
 
 export async function getAllActivePrescriptions() {
-  const q = query(prescriptionsCollection, where("status", "==", "active"))
+  const q = query(
+    prescriptionsCollection,
+    where("status", "==", "active"),
+    orderBy("created_at", "desc")
+  )
+
   const snapshot = await getDocs(q)
-  return sortByDate(mapDocs(snapshot))
+  return mapDocs(snapshot)
 }
 
 export async function getPrescription(prescriptionId) {
@@ -102,10 +109,11 @@ export async function getPrescriptionItems(prescriptionId) {
 export function subscribeToPrescriptionsByPatient(patientId, callback) {
   const q = query(
     prescriptionsCollection,
-    where("patient_id", "==", patientId)
+    where("patient_id", "==", patientId),
+    orderBy("created_at", "desc")
   )
   return onSnapshot(q, (snapshot) => {
-    callback(sortByDate(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))))
+    callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
   })
 }
 
@@ -116,10 +124,11 @@ export function subscribeToPrescriptionsByPatient(patientId, callback) {
 export function subscribeToPrescriptionsByDoctor(doctorId, callback) {
   const q = query(
     prescriptionsCollection,
-    where("doctor_id", "==", doctorId)
+    where("doctor_id", "==", doctorId),
+    orderBy("created_at", "desc")
   )
   return onSnapshot(q, (snapshot) => {
-    callback(sortByDate(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))))
+    callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
   })
 }
 
