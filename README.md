@@ -30,5 +30,4 @@ User → React Interface → Firebase Authentication → Firestore Database → 
 
 In short: React handles the interface and application logic, while Firebase provides authentication and real-time data storage.
 
-Screenshots
-(images)
+
