@@ -3,11 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Medical Finder</title>
-    <script type="module" crossorigin src="/assets/index-eesfUkUf.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-D2ZziwGb.css">
+
+    <!-- SEO -->
+    <title>MedFind - Find Medicines &amp; Manage Prescriptions</title>
+    <meta name="description" content="MedFind connects patients, doctors, and pharmacies to make medication management simple. Search medicines, manage prescriptions, and track your health." />
+    <meta name="theme-color" content="#0d9f6e" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-light-32x32.png" />
+    <link rel="apple-touch-icon" href="/apple-icon.png" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MedFind - Find Medicines &amp; Manage Prescriptions" />
+    <meta property="og:description" content="Connect patients, doctors, and pharmacies. Search medicines, manage prescriptions, and track your health." />
+    <meta property="og:image" content="/icon-light-32x32.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="MedFind - Find Medicines &amp; Manage Prescriptions" />
+    <meta name="twitter:description" content="Connect patients, doctors, and pharmacies for better medication management." />
+
+    <!-- Preconnect to Firebase services (eliminates DNS + TCP + TLS latency on first request) -->
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" />
+    <link rel="preconnect" href="https://firestore.googleapis.com" />
+    <link rel="preconnect" href="https://securetoken.googleapis.com" />
+    <link rel="dns-prefetch" href="https://www.googleapis.com" />
+    <link rel="dns-prefetch" href="https://firebaseapp.com" />
+    <script type="module" crossorigin src="/assets/index-BtuH7dfb.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/ui-vendor-CCc9uJhd.js">
+    <link rel="modulepreload" crossorigin href="/assets/vendor-Cu3um-eQ.js">
+    <link rel="modulepreload" crossorigin href="/assets/react-BOXoAlrN.js">
+    <link rel="modulepreload" crossorigin href="/assets/router-D4Cgp880.js">
+    <link rel="modulepreload" crossorigin href="/assets/firebase-C62D22dn.js">
+    <link rel="modulepreload" crossorigin href="/assets/icons-CBAIVnhH.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-CXWlPnpG.css">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Inline loading shell: renders before JS parses — eliminates blank FCP -->
+      <div id="app-shell" aria-hidden="true" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#09090b;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0d9f6e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:_spin 1s linear infinite">
+          <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+        </svg>
+        <style>@keyframes _spin{to{transform:rotate(360deg)}}</style>
+      </div>
+    </div>
   </body>
 </html>

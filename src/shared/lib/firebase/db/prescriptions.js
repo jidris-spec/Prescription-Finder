@@ -7,81 +7,94 @@ import {
   updateDoc,
   query,
   where,
-  orderBy,
-} from 'firebase/firestore'
-import { db } from '../client'
-import { getMedicine } from './medicines'
+  orderBy
+} from "firebase/firestore"
+import { db } from "../client"
+import { getMedicine } from "./medicines"
 
-export const prescriptionsCollection = collection(db, 'prescriptions')
-export const prescriptionItemsCollection = collection(db, 'prescription_items')
+export const prescriptionsCollection = collection(db, "prescriptions")
+export const prescriptionItemsCollection = collection(db, "prescription_items")
 
-export async function getPrescription(prescriptionId) {
-  const docRef = doc(db, 'prescriptions', prescriptionId)
-  const docSnap = await getDoc(docRef)
-  return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null
+function mapDocs(snapshot) {
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data()
+  }))
 }
 
-export async function getPrescriptionsByPatient(patientId) {
+async function getPrescriptionsByField(field, value) {
   const q = query(
     prescriptionsCollection,
-    where('patient_id', '==', patientId)
+    where(field, "==", value),
+    orderBy("created_at", "desc")
   )
+
   const snapshot = await getDocs(q)
-  return snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+  return mapDocs(snapshot)
 }
 
-export async function getPrescriptionsByDoctor(doctorId) {
-  const q = query(
-    prescriptionsCollection,
-    where('doctor_id', '==', doctorId)
-  )
-  const snapshot = await getDocs(q)
-  return snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+export function getPrescriptionsByPatient(patientId) {
+  return getPrescriptionsByField("patient_id", patientId)
 }
 
-export async function createPrescription(data) {
-  const docRef = await addDoc(prescriptionsCollection, {
-    ...data,
-    status: 'active',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  })
-  return docRef.id
-}
-
-export async function updatePrescription(prescriptionId, data) {
-  const docRef = doc(db, 'prescriptions', prescriptionId)
-  await updateDoc(docRef, { ...data, updated_at: new Date().toISOString() })
+export function getPrescriptionsByDoctor(doctorId) {
+  return getPrescriptionsByField("doctor_id", doctorId)
 }
 
 export async function getAllActivePrescriptions() {
   const q = query(
     prescriptionsCollection,
-    where('status', '==', 'active')
+    where("status", "==", "active"),
+    orderBy("created_at", "desc")
   )
+
   const snapshot = await getDocs(q)
-  return snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
+  return mapDocs(snapshot)
+}
+
+export async function getPrescription(prescriptionId) {
+  const docRef = doc(db, "prescriptions", prescriptionId)
+  const docSnap = await getDoc(docRef)
+
+  return docSnap.exists()
+    ? { id: docSnap.id, ...docSnap.data() }
+    : null
+}
+
+export async function createPrescription(data) {
+  const docRef = await addDoc(prescriptionsCollection, {
+    ...data,
+    status: "active",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  })
+
+  return docRef.id
+}
+
+export async function updatePrescription(prescriptionId, data) {
+  const docRef = doc(db, "prescriptions", prescriptionId)
+
+  await updateDoc(docRef, {
+    ...data,
+    updated_at: new Date().toISOString()
+  })
 }
 
 export async function getPrescriptionItems(prescriptionId) {
   const q = query(
     prescriptionItemsCollection,
-    where('prescription_id', '==', prescriptionId)
+    where("prescription_id", "==", prescriptionId)
   )
+
   const snapshot = await getDocs(q)
-  const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  const items = mapDocs(snapshot)
 
   const itemsWithMedicines = await Promise.all(
-    items.map(async (item) => {
-      const medicine = await getMedicine(item.medicine_id)
-      return { ...item, medicine }
-    })
+    items.map(async (item) => ({
+      ...item,
+      medicine: await getMedicine(item.medicine_id)
+    }))
   )
 
   return itemsWithMedicines
@@ -92,5 +105,6 @@ export async function addPrescriptionItem(data) {
     ...data,
     created_at: new Date().toISOString()
   })
+
   return docRef.id
 }
