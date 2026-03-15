@@ -23,15 +23,14 @@ function mapDocs(snapshot) {
   }))
 }
 
-async function getPrescriptionsByField(field, value) {
-  const q = query(
-    prescriptionsCollection,
-    where(field, "==", value),
-    orderBy("created_at", "desc")
-  )
+function sortByDate(docs) {
+  return docs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+}
 
+async function getPrescriptionsByField(field, value) {
+  const q = query(prescriptionsCollection, where(field, "==", value))
   const snapshot = await getDocs(q)
-  return mapDocs(snapshot)
+  return sortByDate(mapDocs(snapshot))
 }
 
 export function getPrescriptionsByPatient(patientId) {
@@ -43,14 +42,9 @@ export function getPrescriptionsByDoctor(doctorId) {
 }
 
 export async function getAllActivePrescriptions() {
-  const q = query(
-    prescriptionsCollection,
-    where("status", "==", "active"),
-    orderBy("created_at", "desc")
-  )
-
+  const q = query(prescriptionsCollection, where("status", "==", "active"))
   const snapshot = await getDocs(q)
-  return mapDocs(snapshot)
+  return sortByDate(mapDocs(snapshot))
 }
 
 export async function getPrescription(prescriptionId) {
@@ -109,11 +103,18 @@ export async function getPrescriptionItems(prescriptionId) {
 export function subscribeToPrescriptionsByPatient(patientId, callback) {
   const q = query(
     prescriptionsCollection,
+<<<<<<< HEAD
     where("patient_id", "==", patientId),
     orderBy("created_at", "desc")
   )
   return onSnapshot(q, (snapshot) => {
     callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
+=======
+    where("patient_id", "==", patientId)
+  )
+  return onSnapshot(q, (snapshot) => {
+    callback(sortByDate(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))))
+>>>>>>> 2918af0 (i added dark and light mode)
   })
 }
 
@@ -124,11 +125,18 @@ export function subscribeToPrescriptionsByPatient(patientId, callback) {
 export function subscribeToPrescriptionsByDoctor(doctorId, callback) {
   const q = query(
     prescriptionsCollection,
+<<<<<<< HEAD
     where("doctor_id", "==", doctorId),
     orderBy("created_at", "desc")
   )
   return onSnapshot(q, (snapshot) => {
     callback(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })))
+=======
+    where("doctor_id", "==", doctorId)
+  )
+  return onSnapshot(q, (snapshot) => {
+    callback(sortByDate(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))))
+>>>>>>> 2918af0 (i added dark and light mode)
   })
 }
 

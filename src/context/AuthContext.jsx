@@ -141,14 +141,9 @@ export function AuthProvider({ children }) {
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       const uid = cred.user.uid;
-
       await setDoc(
         doc(db, "profiles", uid),
-        {
-          ...profileData,
-          created_at: serverTimestamp(),
-          updated_at: serverTimestamp(),
-        },
+        { ...profileData, created_at: serverTimestamp(), updated_at: serverTimestamp() },
         { merge: true }
       );
 
