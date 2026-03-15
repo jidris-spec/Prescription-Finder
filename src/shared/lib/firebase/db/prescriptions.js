@@ -7,7 +7,7 @@ import {
   updateDoc,
   query,
   where,
-  orderBy
+  onSnapshot
 } from "firebase/firestore"
 import { db } from "../client"
 import { getMedicine } from "./medicines"
@@ -22,15 +22,14 @@ function mapDocs(snapshot) {
   }))
 }
 
-async function getPrescriptionsByField(field, value) {
-  const q = query(
-    prescriptionsCollection,
-    where(field, "==", value),
-    orderBy("created_at", "desc")
-  )
+function sortByDate(docs) {
+  return docs.sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+}
 
+async function getPrescriptionsByField(field, value) {
+  const q = query(prescriptionsCollection, where(field, "==", value))
   const snapshot = await getDocs(q)
-  return mapDocs(snapshot)
+  return sortByDate(mapDocs(snapshot))
 }
 
 export function getPrescriptionsByPatient(patientId) {
@@ -42,14 +41,9 @@ export function getPrescriptionsByDoctor(doctorId) {
 }
 
 export async function getAllActivePrescriptions() {
-  const q = query(
-    prescriptionsCollection,
-    where("status", "==", "active"),
-    orderBy("created_at", "desc")
-  )
-
+  const q = query(prescriptionsCollection, where("status", "==", "active"))
   const snapshot = await getDocs(q)
-  return mapDocs(snapshot)
+  return sortByDate(mapDocs(snapshot))
 }
 
 export async function getPrescription(prescriptionId) {
@@ -90,14 +84,43 @@ export async function getPrescriptionItems(prescriptionId) {
   const snapshot = await getDocs(q)
   const items = mapDocs(snapshot)
 
-  const itemsWithMedicines = await Promise.all(
-    items.map(async (item) => ({
-      ...item,
-      medicine: await getMedicine(item.medicine_id)
-    }))
-  )
+  // Fetch each unique medicine_id once, then map back to items
+  const uniqueIds = [...new Set(items.map(i => i.medicine_id).filter(Boolean))]
+  const medicines = await Promise.all(uniqueIds.map(getMedicine))
+  const medicineMap = Object.fromEntries(uniqueIds.map((id, i) => [id, medicines[i]]))
 
-  return itemsWithMedicines
+  return items.map(item => ({
+    ...item,
+    medicine: medicineMap[item.medicine_id] ?? null
+  }))
+}
+
+/**
+ * Subscribe to live prescription updates for a patient.
+ * Returns an unsubscribe function — call it in useEffect cleanup.
+ */
+export function subscribeToPrescriptionsByPatient(patientId, callback) {
+  const q = query(
+    prescriptionsCollection,
+    where("patient_id", "==", patientId)
+  )
+  return onSnapshot(q, (snapshot) => {
+    callback(sortByDate(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))))
+  })
+}
+
+/**
+ * Subscribe to live prescription updates for a doctor.
+ * Returns an unsubscribe function — call it in useEffect cleanup.
+ */
+export function subscribeToPrescriptionsByDoctor(doctorId, callback) {
+  const q = query(
+    prescriptionsCollection,
+    where("doctor_id", "==", doctorId)
+  )
+  return onSnapshot(q, (snapshot) => {
+    callback(sortByDate(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))))
+  })
 }
 
 export async function addPrescriptionItem(data) {

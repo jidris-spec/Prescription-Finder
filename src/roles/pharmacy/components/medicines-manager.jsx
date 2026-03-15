@@ -9,12 +9,13 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Search, Pill, Plus, Loader2, Trash2 } from 'lucide-react'
+import { Search, Pill, Plus, Loader2, Trash2, Eye } from 'lucide-react'
 
 export function MedicinesManager({ medicines, onRefresh }) {
 
   const [search, setSearch] = useState('')
   const [isAddOpen, setIsAddOpen] = useState(false)
+  const [viewMedicine, setViewMedicine] = useState(null)
   const [loading, setLoading] = useState(false)
 
   // Form state
@@ -24,6 +25,7 @@ export function MedicinesManager({ medicines, onRefresh }) {
   const [category, setCategory] = useState('')
   const [dosageForm, setDosageForm] = useState('')
   const [strength, setStrength] = useState('')
+  const [activeSubstance, setActiveSubstance] = useState('')
   const [description, setDescription] = useState('')
   const [requiresPrescription, setRequiresPrescription] = useState(false)
 
@@ -45,6 +47,7 @@ export function MedicinesManager({ medicines, onRefresh }) {
         category: category || null,
         dosage_form: dosageForm || null,
         strength: strength || null,
+        active_substance: activeSubstance || null,
         description: description || null,
         requires_prescription: requiresPrescription,
       })
@@ -76,6 +79,7 @@ export function MedicinesManager({ medicines, onRefresh }) {
     setCategory('')
     setDosageForm('')
     setStrength('')
+    setActiveSubstance('')
     setDescription('')
     setRequiresPrescription(false)
   }
@@ -161,6 +165,14 @@ export function MedicinesManager({ medicines, onRefresh }) {
                 />
               </div>
               <div className="space-y-2">
+                <Label>Active Substance</Label>
+                <Input
+                  placeholder="e.g., Amoxicillin"
+                  value={activeSubstance}
+                  onChange={(e) => setActiveSubstance(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
                 <Label>Description</Label>
                 <Textarea
                   placeholder="Medicine description..."
@@ -236,13 +248,22 @@ export function MedicinesManager({ medicines, onRefresh }) {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => handleDelete(medicine.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setViewMedicine(medicine)}
+                      >
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(medicine.id)}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -250,6 +271,71 @@ export function MedicinesManager({ medicines, onRefresh }) {
           </Table>
         </Card>
       )}
+
+      {/* View Medicine Dialog */}
+      <Dialog open={!!viewMedicine} onOpenChange={(open) => !open && setViewMedicine(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pill className="h-5 w-5 text-primary" />
+              {viewMedicine?.name}
+            </DialogTitle>
+            {viewMedicine?.generic_name && (
+              <DialogDescription>{viewMedicine.generic_name}</DialogDescription>
+            )}
+          </DialogHeader>
+          {viewMedicine && (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                {viewMedicine.brand && (
+                  <div>
+                    <p className="text-muted-foreground">Brand</p>
+                    <p className="font-medium">{viewMedicine.brand}</p>
+                  </div>
+                )}
+                {viewMedicine.category && (
+                  <div>
+                    <p className="text-muted-foreground">Category</p>
+                    <p className="font-medium">{viewMedicine.category}</p>
+                  </div>
+                )}
+                {viewMedicine.strength && (
+                  <div>
+                    <p className="text-muted-foreground">Strength</p>
+                    <p className="font-medium">{viewMedicine.strength}</p>
+                  </div>
+                )}
+                {viewMedicine.dosage_form && (
+                  <div>
+                    <p className="text-muted-foreground">Dosage Form</p>
+                    <p className="font-medium">{viewMedicine.dosage_form}</p>
+                  </div>
+                )}
+                {viewMedicine.active_substance && (
+                  <div className="col-span-2">
+                    <p className="text-muted-foreground">Active Substance</p>
+                    <p className="font-medium">{viewMedicine.active_substance}</p>
+                  </div>
+                )}
+                <div className="col-span-2">
+                  <p className="text-muted-foreground">Requires Prescription</p>
+                  <p className="font-medium">{viewMedicine.requires_prescription ? 'Yes' : 'No'}</p>
+                </div>
+              </div>
+              {viewMedicine.description ? (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-muted-foreground text-sm mb-1">Description</p>
+                  <p className="text-sm leading-relaxed">{viewMedicine.description}</p>
+                </div>
+              ) : (
+                <div className="pt-2 border-t border-border">
+                  <p className="text-sm text-muted-foreground italic">No description provided.</p>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

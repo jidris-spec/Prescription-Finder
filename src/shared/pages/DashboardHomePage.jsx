@@ -102,16 +102,19 @@ export default function DashboardHomePage() {
       try {
         const prescriptions = await getPrescriptionsByPatient(user.uid)
 
-        // Enrich prescriptions with medicine details for refill alerts
+        // Enrich prescriptions with a representative medicine for refill alerts.
+        // Prefer the inline medicine_id on the prescription to avoid loading all items.
         const enriched = await Promise.all(
           prescriptions.map(async (p) => {
-            const items = await getPrescriptionItems(p.id)
-            let medicines = items.map(item => item.medicine).filter(Boolean)
-            if (medicines.length === 0 && p.medicine_id) {
-              const med = await getMedicine(p.medicine_id)
-              if (med) medicines = [med]
+            let medicine = null
+            if (p.medicine_id) {
+              medicine = await getMedicine(p.medicine_id)
             }
-            return { ...p, medicines: medicines[0] || null }
+            if (!medicine) {
+              const items = await getPrescriptionItems(p.id)
+              medicine = items.map(item => item.medicine).find(Boolean) ?? null
+            }
+            return { ...p, medicines: medicine }
           })
         )
         setPatientPrescriptions(enriched)

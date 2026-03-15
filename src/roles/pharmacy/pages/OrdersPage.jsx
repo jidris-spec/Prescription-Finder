@@ -3,7 +3,33 @@ import { Navigate } from 'react-router-dom'
 import { getOrdersByPharmacy, getPharmacyByUserId, getAllActivePrescriptions, getProfile, getMedicine } from '@/shared/lib/firebase/db'
 import { useAuth } from '@/context/AuthContext'
 import { OrdersList } from '../components/orders-list'
-import { Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+
+function OrdersSkeleton() {
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-28 rounded-md" />
+        <Skeleton className="h-9 w-28 rounded-md" />
+      </div>
+      {[1, 2, 3].map(i => (
+        <div key={i} className="border border-border rounded-lg p-5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-9 w-9 rounded-lg" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <Skeleton className="h-6 w-16 rounded-full" />
+          </div>
+          <Skeleton className="h-9 w-full rounded-md" />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function OrdersPage() {
   const { user, profile } = useAuth()
@@ -70,14 +96,6 @@ export default function OrdersPage() {
     return <Navigate to="/dashboard" replace />
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <div>
@@ -86,12 +104,14 @@ export default function OrdersPage() {
           View prescription orders and fulfillment history
         </p>
       </div>
-      <OrdersList
-        pharmacy={pharmacy}
-        orders={orders}
-        pendingPrescriptions={pendingPrescriptions}
-        onRefresh={fetchData}
-      />
+      {loading ? <OrdersSkeleton /> : (
+        <OrdersList
+          pharmacy={pharmacy}
+          orders={orders}
+          pendingPrescriptions={pendingPrescriptions}
+          onRefresh={fetchData}
+        />
+      )}
     </div>
   )
 }

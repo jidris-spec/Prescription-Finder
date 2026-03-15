@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { updateProfile } from '@/shared/lib/firebase/db'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -6,7 +7,9 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, User, Users } from 'lucide-react'
+import { Search, User, Users, ChevronLeft, ChevronRight } from 'lucide-react'
+
+const PAGE_SIZE = 10
 
 const roleColors = {
   patient: 'bg-blue-100 text-blue-800',
@@ -16,9 +19,9 @@ const roleColors = {
 }
 
 export function UsersManager({ users, onRefresh }) {
-
   const [search, setSearch] = useState('')
   const [roleFilter, setRoleFilter] = useState('all')
+  const [page, setPage] = useState(1)
 
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
@@ -28,14 +31,22 @@ export function UsersManager({ users, onRefresh }) {
     return matchesSearch && matchesRole
   })
 
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE))
+  const pagedUsers = filteredUsers.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const handleFilterChange = (setter) => (val) => {
+    setter(val)
+    setPage(1)
+  }
+
   const handleRoleChange = async (userId, newRole) => {
     try {
       await updateProfile(userId, { role: newRole })
-      if (onRefresh) {
-        await onRefresh()
-      }
+      toast.success('User role updated')
+      if (onRefresh) await onRefresh()
     } catch (error) {
       console.error('Error updating user role:', error)
+      toast.error('Failed to update user role')
     }
   }
 
@@ -56,11 +67,11 @@ export function UsersManager({ users, onRefresh }) {
           <Input
             placeholder="Search users by name or email..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1) }}
             className="pl-10"
           />
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
+        <Select value={roleFilter} onValueChange={handleFilterChange(setRoleFilter)}>
           <SelectTrigger className="w-full md:w-[200px]">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
@@ -101,7 +112,7 @@ export function UsersManager({ users, onRefresh }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredUsers.map((user) => (
+              {pagedUsers.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -142,6 +153,35 @@ export function UsersManager({ users, onRefresh }) {
             </TableBody>
           </Table>
         </Card>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            Showing {Math.min((page - 1) * PAGE_SIZE + 1, filteredUsers.length)}–{Math.min(page * PAGE_SIZE, filteredUsers.length)} of {filteredUsers.length} users
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <span className="px-2">Page {page} of {totalPages}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   )

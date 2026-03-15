@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { createDoseLog } from '@/shared/lib/firebase/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -63,9 +64,11 @@ export function DoseSchedule({ prescriptions, doseLogs, patientId, onRefresh }) 
         time_slot: entry.time,
         date: new Date().toISOString().split('T')[0],
       })
-      if (onRefresh) onRefresh()
+      if (onRefresh) await onRefresh()
+      toast.success(`${entry.medicineName} marked as taken`)
     } catch (err) {
       console.error('Error marking dose:', err)
+      toast.error('Failed to mark dose. Please try again.')
     }
     setMarking(null)
   }

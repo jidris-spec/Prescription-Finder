@@ -3,7 +3,34 @@ import { Navigate } from 'react-router-dom'
 import { getAllProfiles } from '@/shared/lib/firebase/db'
 import { useAuth } from '@/context/AuthContext'
 import { UsersManager } from '../components/users-manager'
-import { Loader2 } from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Card } from '@/components/ui/card'
+
+function UsersTableSkeleton() {
+  return (
+    <Card className="border-border">
+      <div className="p-4 space-y-3">
+        <div className="flex gap-4 pb-2">
+          <Skeleton className="h-9 flex-1" />
+          <Skeleton className="h-9 w-40" />
+        </div>
+        {[1, 2, 3, 4, 5].map(i => (
+          <div key={i} className="flex items-center gap-4 py-2 border-t border-border">
+            <div className="flex items-center gap-3 flex-1">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-4 w-36" />
+            </div>
+            <Skeleton className="h-4 w-44" />
+            <Skeleton className="h-6 w-20 rounded-full" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-8 w-28 ml-auto" />
+          </div>
+        ))}
+      </div>
+    </Card>
+  )
+}
 
 export default function UsersPage() {
   const { profile } = useAuth()
@@ -35,14 +62,6 @@ export default function UsersPage() {
     return <Navigate to="/dashboard" replace />
   }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
       <div>
@@ -51,7 +70,7 @@ export default function UsersPage() {
           View and manage all registered users
         </p>
       </div>
-      <UsersManager users={users} onRefresh={fetchData} />
+      {loading ? <UsersTableSkeleton /> : <UsersManager users={users} onRefresh={fetchData} />}
     </div>
   )
 }

@@ -1,20 +1,22 @@
 import { useState } from 'react'
 import { updateEmail } from 'firebase/auth'
+import { useTheme } from 'next-themes'
+import { toast } from 'sonner'
 import { useAuth } from '@/context/AuthContext'
 import { updateProfile, createDoctor, updateDoctor, createPharmacy, updatePharmacy } from '@/shared/lib/firebase/db'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Loader2, CheckCircle, AlertCircle, User, Stethoscope, Building2 } from 'lucide-react'
+import { Loader2, User, Stethoscope, Building2, Sun, Moon } from 'lucide-react'
 
 export function SettingsForm({ profile, doctorInfo, pharmacyInfo, onRefresh }) {
   const { refreshProfile, user } = useAuth()
+  const { theme, setTheme } = useTheme()
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
 
   // Profile state
   const [email, setEmail] = useState(user?.email || '')
@@ -39,9 +41,7 @@ export function SettingsForm({ profile, doctorInfo, pharmacyInfo, onRefresh }) {
     if (!profile || !user) return
 
     setLoading(true)
-    setError('')
     try {
-      // Update email in Firebase Auth if changed
       if (email && email !== user.email) {
         await updateEmail(user, email)
       }
@@ -52,17 +52,15 @@ export function SettingsForm({ profile, doctorInfo, pharmacyInfo, onRefresh }) {
         address: address || null,
       })
 
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      toast.success('Profile saved successfully')
       refreshProfile()
     } catch (err) {
       console.error('Error saving profile:', err)
       if (err.code === 'auth/requires-recent-login') {
-        setError('Please log out and log back in before changing your email.')
+        toast.error('Please log out and log back in before changing your email.')
       } else {
-        setError(err.message || 'Failed to save profile')
+        toast.error(err.message || 'Failed to save profile')
       }
-      setTimeout(() => setError(''), 5000)
     }
     setLoading(false)
   }
@@ -87,11 +85,11 @@ export function SettingsForm({ profile, doctorInfo, pharmacyInfo, onRefresh }) {
         })
       }
 
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      toast.success('Doctor information saved')
       if (onRefresh) onRefresh()
     } catch (error) {
       console.error('Error saving doctor info:', error)
+      toast.error('Failed to save doctor information')
     }
     setLoading(false)
   }
@@ -100,7 +98,6 @@ export function SettingsForm({ profile, doctorInfo, pharmacyInfo, onRefresh }) {
     if (!profile || !user) return
 
     setLoading(true)
-    setError('')
     try {
       if (pharmacyInfo) {
         await updatePharmacy(pharmacyInfo.id, {
@@ -123,31 +120,46 @@ export function SettingsForm({ profile, doctorInfo, pharmacyInfo, onRefresh }) {
         })
       }
 
-      setSuccess(true)
-      setTimeout(() => setSuccess(false), 3000)
+      toast.success('Pharmacy information saved')
       if (onRefresh) onRefresh()
     } catch (err) {
       console.error('Error saving pharmacy info:', err)
-      setError('Failed to save pharmacy info: ' + (err?.message || 'Unknown error'))
-      setTimeout(() => setError(''), 5000)
+      toast.error('Failed to save pharmacy info: ' + (err?.message || 'Unknown error'))
     }
     setLoading(false)
   }
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {success && (
-        <div className="p-3 bg-green-100 text-green-800 rounded-lg flex items-center gap-2">
-          <CheckCircle className="h-4 w-4" />
-          Settings saved successfully!
-        </div>
-      )}
-      {error && (
-        <div className="p-3 bg-red-100 text-red-800 rounded-lg flex items-center gap-2">
-          <AlertCircle className="h-4 w-4" />
-          {error}
-        </div>
-      )}
+      {/* Appearance Settings */}
+      <Card className="border-border">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <Sun className="h-5 w-5 text-primary" />
+            <div>
+              <CardTitle>Appearance</CardTitle>
+              <CardDescription>Customize how MedFind looks for you</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Sun className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <Label className="text-sm font-medium">Dark Mode</Label>
+                <p className="text-xs text-muted-foreground">Toggle between light and dark theme</p>
+              </div>
+              <Moon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <Switch
+              checked={theme === 'dark'}
+              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+              aria-label="Toggle dark mode"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Profile Settings */}
       <Card className="border-border">

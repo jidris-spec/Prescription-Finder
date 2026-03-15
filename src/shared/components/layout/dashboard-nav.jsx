@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
+import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -22,7 +23,10 @@ import {
   Building2,
   Shield,
   LayoutDashboard,
-  ClipboardList
+  ClipboardList,
+  Sun,
+  Moon,
+  BadgeCheck,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils/cn'
 
@@ -43,13 +47,15 @@ const roleLabels = {
 const navItemsByRole = {
   patient: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/schedule', label: 'Schedule', icon: ClipboardList },
+    { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: FileText },
     { href: '/dashboard/search', label: 'Find Medicines', icon: Search },
-    { href: '/dashboard/prescriptions', label: 'My Prescriptions', icon: FileText },
   ],
   doctor: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
+    { href: '/dashboard/new-prescription', label: 'New Prescription', icon: FileText },
     { href: '/dashboard/connections', label: 'Requests', icon: ClipboardList },
-    { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: FileText },
+    { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: Pill },
     { href: '/dashboard/patients', label: 'Patients', icon: Users },
     { href: '/dashboard/search', label: 'Medicines', icon: Search },
   ],
@@ -63,6 +69,7 @@ const navItemsByRole = {
   admin: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
     { href: '/dashboard/users', label: 'Users', icon: Users },
+    { href: '/dashboard/verifications', label: 'Verifications', icon: BadgeCheck },
     { href: '/dashboard/medicines', label: 'Medicines', icon: Pill },
     { href: '/dashboard/pharmacies', label: 'Pharmacies', icon: Building2 },
     { href: '/dashboard/doctors', label: 'Doctors', icon: Stethoscope },
@@ -73,6 +80,7 @@ export function DashboardNav({ user, profile }) {
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const { signOut } = useAuth()
+  const { theme, setTheme } = useTheme()
   const role = profile?.role || 'patient'
   const RoleIcon = roleIcons[role]
   const navItems = navItemsByRole[role]
@@ -80,6 +88,10 @@ export function DashboardNav({ user, profile }) {
   const handleSignOut = async () => {
     await signOut()
     navigate('/')
+  }
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
   }
 
   return (
@@ -117,6 +129,17 @@ export function DashboardNav({ user, profile }) {
               )
             })}
           </nav>
+
+          {/* Theme Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+          >
+            <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+          </Button>
 
           {/* User Menu */}
           <DropdownMenu>

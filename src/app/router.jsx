@@ -7,12 +7,12 @@ import LoadingFallback from "@/shared/components/common/LoadingFallback.jsx";
 
 // --- Eager imports ---
 import HomePage from "@/shared/pages/HomePage.jsx";
-import Login from "@/auth/pages/LoginPage.jsx";
-import UnauthorizedPage from "@/shared/pages/UnauthorizedPage.jsx";
-import DashboardLayout from "@/shared/components/layout/DashboardLayout.jsx";
 
 // --- Lazy imports ---
+const Login = lazy(() => import("@/auth/pages/LoginPage.jsx"));
 const SignUp = lazy(() => import("@/auth/pages/SignUpPage.jsx"));
+const UnauthorizedPage = lazy(() => import("@/shared/pages/UnauthorizedPage.jsx"));
+const DashboardLayout = lazy(() => import("@/shared/components/layout/DashboardLayout.jsx"));
 const DashboardHomePage = lazy(() => import("@/shared/pages/DashboardHomePage.jsx"));
 const PrescriptionsPage = lazy(() => import("@/shared/pages/PrescriptionsPage.jsx"));
 const SearchPage = lazy(() => import("@/shared/pages/SearchPage.jsx"));
@@ -36,6 +36,7 @@ const OrdersPage = lazy(() => import("@/roles/pharmacy/pages/OrdersPage.jsx"));
 
 // Admin
 const UsersPage = lazy(() => import("@/roles/admin/pages/UsersPage.jsx"));
+const VerificationsPage = lazy(() => import("@/roles/admin/pages/VerificationsPage.jsx"));
 
 function RoleRedirect() {
   const { loading, user, profile } = useAuth();
@@ -59,7 +60,14 @@ const router = createBrowserRouter([
   // Public pages
   { path: "/", element: <HomePage /> },
 
-  { path: "/auth/login", element: <Login /> },
+  {
+    path: "/auth/login",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Login />
+      </Suspense>
+    ),
+  },
 
   {
     path: "/auth/sign-up",
@@ -70,15 +78,24 @@ const router = createBrowserRouter([
     ),
   },
 
-  { path: "/unauthorized", element: <UnauthorizedPage /> },
+  {
+    path: "/unauthorized",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <UnauthorizedPage />
+      </Suspense>
+    ),
+  },
 
   // Dashboard
   {
     path: "/dashboard",
     element: (
-      <RequireRole allow={["doctor", "patient", "pharmacy", "admin"]}>
-        <DashboardLayout />
-      </RequireRole>
+      <Suspense fallback={<LoadingFallback />}>
+        <RequireRole allow={["doctor", "patient", "pharmacy", "admin"]}>
+          <DashboardLayout />
+        </RequireRole>
+      </Suspense>
     ),
 
     children: [
@@ -240,6 +257,17 @@ const router = createBrowserRouter([
           <RequireRole allow={["admin"]}>
             <Suspense fallback={<LoadingFallback />}>
               <UsersPage />
+            </Suspense>
+          </RequireRole>
+        ),
+      },
+
+      {
+        path: "verifications",
+        element: (
+          <RequireRole allow={["admin"]}>
+            <Suspense fallback={<LoadingFallback />}>
+              <VerificationsPage />
             </Suspense>
           </RequireRole>
         ),
