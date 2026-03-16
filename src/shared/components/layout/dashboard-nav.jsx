@@ -56,14 +56,9 @@ const navItemsByRole = {
   ],
   doctor: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
-<<<<<<< Updated upstream
     { href: '/dashboard/new-prescription', label: 'New Prescription', icon: FileText },
     { href: '/dashboard/connections', label: 'Requests', icon: ClipboardList },
     { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: Pill },
-=======
-    { href: '/dashboard/connections', label: 'Requests', icon: ClipboardList },
-    { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: FileText },
->>>>>>> Stashed changes
     { href: '/dashboard/patients', label: 'Patients', icon: Users },
     { href: '/dashboard/search', label: 'Medicines', icon: Search },
   ],
@@ -73,10 +68,7 @@ const navItemsByRole = {
     { href: '/dashboard/inventory', label: 'Inventory', icon: Package },
     { href: '/dashboard/orders', label: 'Orders', icon: ClipboardList },
     { href: '/dashboard/search', label: 'Search', icon: Search },
-<<<<<<< Updated upstream
     { href: '/dashboard/requests', label: 'Requests', icon: MessageSquare },
-=======
->>>>>>> Stashed changes
   ],
   admin: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },

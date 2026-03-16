@@ -15,16 +15,11 @@ export const ordersCollection = collection(db, "orders")
 async function getOrdersByField(field, value) {
   const q = query(
     ordersCollection,
-<<<<<<< Updated upstream
     where(field, "==", value),
     orderBy("created_at", "desc")
-=======
-    where('pharmacy_id', '==', pharmacyId)
->>>>>>> Stashed changes
   )
 
   const snapshot = await getDocs(q)
-<<<<<<< Updated upstream
 
   return snapshot.docs.map((doc) => ({
     id: doc.id,
@@ -38,22 +33,6 @@ export function getOrdersByPharmacy(pharmacyId) {
 
 export function getOrdersByPatient(patientId) {
   return getOrdersByField("patient_id", patientId)
-=======
-  return snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
-}
-
-export async function getOrdersByPatient(patientId) {
-  const q = query(
-    ordersCollection,
-    where('patient_id', '==', patientId)
-  )
-  const snapshot = await getDocs(q)
-  return snapshot.docs
-    .map(doc => ({ id: doc.id, ...doc.data() }))
-    .sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''))
->>>>>>> Stashed changes
 }
 
 export async function createOrder(data) {

@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { updateInventoryItem, deleteInventoryItem } from "@/shared/lib/firebase/db"
@@ -12,69 +11,6 @@ import { Badge } from "@/components/ui/badge"
 import { Package, AlertCircle, Pencil, Trash2, Check, X } from "lucide-react"
 
 import AddInventoryDialog from "./AddInventoryDialog"
-=======
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { addInventoryItem, updateInventoryItem, deleteInventoryItem } from '@/shared/lib/firebase/db'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
-import { Plus, Package, AlertCircle, Loader2, Pencil, Trash2, ChevronsUpDown, Check } from 'lucide-react'
-import { cn } from '@/shared/lib/utils/cn'
-
-function MedicineCombobox({ medicines, value, onChange }) {
-  const [open, setOpen] = useState(false)
-  const selected = medicines.find((m) => m.id === value)
-
-  return (
-    <Popover open={open} onOpenChange={setOpen} modal={false}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-full justify-between font-normal"
-        >
-          {selected
-            ? `${selected.name || selected.brand_name}${selected.strength ? ` (${selected.strength})` : ''}`
-            : 'Select medicine'}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }} align="start">
-        <Command>
-          <CommandInput placeholder="Search medicine..." />
-          <CommandList>
-            <CommandEmpty>No medicine found.</CommandEmpty>
-            <CommandGroup>
-              {medicines.map((m) => (
-                <CommandItem
-                  key={m.id}
-                  value={`${m.name || m.brand_name || ''} ${m.strength || ''}`}
-                  onSelect={() => {
-                    onChange(m.id)
-                    setOpen(false)
-                  }}
-                >
-                  <Check className={cn('mr-2 h-4 w-4', value === m.id ? 'opacity-100' : 'opacity-0')} />
-                  {m.name || m.brand_name}
-                  {m.strength && <span className="ml-1 text-muted-foreground">({m.strength})</span>}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  )
-}
->>>>>>> Stashed changes
 
 export function InventoryManager({ pharmacy, inventory, medicines, onRefresh }) {
   const navigate = useNavigate()
@@ -133,7 +69,6 @@ export function InventoryManager({ pharmacy, inventory, medicines, onRefresh }) 
         <div className="text-sm text-muted-foreground">
           {inventory.length} items in inventory
         </div>
-<<<<<<< Updated upstream
 
         <AddInventoryDialog
           pharmacy={pharmacy}
@@ -141,96 +76,6 @@ export function InventoryManager({ pharmacy, inventory, medicines, onRefresh }) 
           inventory={inventory}
           onRefresh={onRefresh}
         />
-=======
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Medicine
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add Medicine to Inventory</DialogTitle>
-              <DialogDescription>
-                Add a new medicine to your pharmacy inventory
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 pt-4">
-              {medicines.length === 0 && (
-                <div className="p-3 text-sm rounded-md bg-orange-100 text-orange-800 flex items-start gap-2">
-                  <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>
-                    No medicines in the catalog yet.{' '}
-                    <button
-                      className="underline font-medium"
-                      onClick={() => { setIsAddOpen(false); navigate('/dashboard/medicines') }}
-                    >
-                      Go to Medicines
-                    </button>{' '}
-                    to add medicines first, then come back to add them to inventory.
-                  </span>
-                </div>
-              )}
-              <div className="space-y-2">
-                <Label>Medicine</Label>
-                <MedicineCombobox
-                  medicines={availableMedicines}
-                  value={medicineId}
-                  onChange={setMedicineId}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Quantity</Label>
-                  <Input
-                    type="number"
-                    placeholder="100"
-                    value={quantity}
-                    onChange={(e) => setQuantity(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Price ($)</Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    placeholder="9.99"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Batch Number (optional)</Label>
-                  <Input
-                    placeholder="BATCH-001"
-                    value={batchNumber}
-                    onChange={(e) => setBatchNumber(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Expiry Date (optional)</Label>
-                  <Input
-                    type="date"
-                    value={expiryDate}
-                    onChange={(e) => setExpiryDate(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 pt-4">
-                <Button variant="outline" onClick={() => setIsAddOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleAdd} disabled={loading || !medicineId || !quantity || !price}>
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Add to Inventory'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
->>>>>>> Stashed changes
       </div>
 
       {/* Inventory Table */}

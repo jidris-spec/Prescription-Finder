@@ -34,10 +34,12 @@ export default defineConfig(() => {
       rollupOptions: {
         output: {
           manualChunks(id) {
-            // Firebase — split so auth and firestore are separate chunks
-            if (id.includes('node_modules/firebase/auth')) return 'firebase-auth'
-            if (id.includes('node_modules/firebase/firestore')) return 'firebase-firestore'
-            if (id.includes('node_modules/firebase')) return 'firebase-core'
+            // Firebase v9+ stores real code in @firebase/* scoped packages.
+            // Must catch both firebase/* barrel paths AND @firebase/* internals
+            // to actually split the bundle (works for both npm and pnpm layouts).
+            if (id.includes('@firebase/auth') || id.includes('/firebase/auth')) return 'firebase-auth'
+            if (id.includes('@firebase/firestore') || id.includes('/firebase/firestore')) return 'firebase-firestore'
+            if (id.includes('node_modules/@firebase') || id.includes('node_modules/firebase')) return 'firebase-core'
 
             // Radix — separate heavy overlay components from lightweight primitives
             if (
@@ -75,7 +77,12 @@ export default defineConfig(() => {
             // Layout helpers
             if (id.includes('node_modules/react-resizable-panels')) return 'panels'
 
-            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react'
+            // React core — use exact boundary (/react/ not /react-router/)
+            if (
+              id.includes('/node_modules/react/') ||
+              id.includes('/node_modules/react-dom/') ||
+              id.includes('/node_modules/scheduler/')
+            ) return 'react'
 
             if (id.includes('node_modules')) return 'vendor'
           },
