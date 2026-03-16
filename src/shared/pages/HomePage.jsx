@@ -1,7 +1,99 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Pill, Search, FileText, Building2, Shield, ArrowRight } from 'lucide-react'
+import { Pill, Search, FileText, Building2, Shield, ArrowRight, User, Stethoscope, Copy, Check } from 'lucide-react'
+import { useState } from 'react'
+
+const DEMO_ACCOUNTS = [
+  {
+    role: 'Patient',
+    email: 'patient@medfind.demo',
+    password: 'demo1234',
+    icon: User,
+    color: 'text-blue-600 dark:text-blue-400',
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    border: 'border-blue-200 dark:border-blue-800',
+    description: 'View prescriptions, track dose schedule, search medicines',
+  },
+  {
+    role: 'Doctor',
+    email: 'doctor@medfind.demo',
+    password: 'demo1234',
+    icon: Stethoscope,
+    color: 'text-green-600 dark:text-green-400',
+    bg: 'bg-green-50 dark:bg-green-950/40',
+    border: 'border-green-200 dark:border-green-800',
+    description: 'Write prescriptions, manage connected patients',
+  },
+  {
+    role: 'Pharmacist',
+    email: 'pharmacy@medfind.demo',
+    password: 'demo1234',
+    icon: Building2,
+    color: 'text-purple-600 dark:text-purple-400',
+    bg: 'bg-purple-50 dark:bg-purple-950/40',
+    border: 'border-purple-200 dark:border-purple-800',
+    description: 'Manage inventory, fulfill prescription orders',
+  },
+  {
+    role: 'Admin',
+    email: 'admin@medfind.demo',
+    password: 'demo1234',
+    icon: Shield,
+    color: 'text-orange-600 dark:text-orange-400',
+    bg: 'bg-orange-50 dark:bg-orange-950/40',
+    border: 'border-orange-200 dark:border-orange-800',
+    description: 'Verify doctors & pharmacies, manage users',
+  },
+]
+
+function DemoCard({ account }) {
+  const [copied, setCopied] = useState(false)
+  const Icon = account.icon
+
+  const copyCredentials = () => {
+    navigator.clipboard.writeText(`${account.email}\n${account.password}`)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className={`rounded-xl border p-5 ${account.bg} ${account.border}`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Icon className={`h-5 w-5 ${account.color}`} />
+          <span className={`font-semibold ${account.color}`}>{account.role}</span>
+        </div>
+        <button
+          onClick={copyCredentials}
+          className="text-muted-foreground hover:text-foreground transition-colors"
+          title="Copy credentials"
+        >
+          {copied
+            ? <Check className="h-4 w-4 text-green-500" />
+            : <Copy className="h-4 w-4" />}
+        </button>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">{account.description}</p>
+      <div className="space-y-1 text-sm font-mono">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground text-xs">Email</span>
+          <span className="text-foreground">{account.email}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground text-xs">Password</span>
+          <span className="text-foreground">{account.password}</span>
+        </div>
+      </div>
+      <Button size="sm" className="w-full mt-4" asChild>
+        <Link to={`/auth/login?email=${encodeURIComponent(account.email)}`}>
+          Sign in as {account.role}
+          <ArrowRight className="ml-2 h-3 w-3" />
+        </Link>
+      </Button>
+    </div>
+  )
+}
 
 export default function HomePage() {
   return (
@@ -103,6 +195,28 @@ export default function HomePage() {
                 </CardDescription>
               </CardHeader>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Demo Access Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <span className="inline-block bg-primary/10 text-primary text-xs font-semibold px-3 py-1 rounded-full mb-3 uppercase tracking-wide">
+              Live Demo
+            </span>
+            <h2 className="text-3xl font-bold text-foreground mb-3">
+              Try it out — no sign-up needed
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Use a pre-loaded demo account to explore each role. All accounts share the same password.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {DEMO_ACCOUNTS.map((account) => (
+              <DemoCard key={account.role} account={account} />
+            ))}
           </div>
         </div>
       </section>

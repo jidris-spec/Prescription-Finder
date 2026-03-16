@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from 'react'
-import { searchMedicines as firebaseSearchMedicines, getAllMedicines, searchPharmaciesWithMedicine, getAlternativeMedicines } from '@/shared/lib/firebase/db'
+import { toast } from 'sonner'
+import { searchMedicines as firebaseSearchMedicines, getAllMedicines, searchPharmaciesWithMedicine, getAlternativeMedicines, createMedicineRequest } from '@/shared/lib/firebase/db'
+import { useAuth } from '@/context/AuthContext'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Search, Pill, MapPin, Package, Loader2, AlertCircle } from 'lucide-react'
+import { Search, Pill, MapPin, Package, Loader2, AlertCircle, MessageSquare } from 'lucide-react'
 
 export function MedicineSearch({ initialMedicines, categories }) {
+  const { profile } = useAuth()
   const [searchQuery, setSearchQuery] = useState('')
   const [category, setCategory] = useState('all')
   const [medicines, setMedicines] = useState(initialMedicines)
@@ -15,6 +18,20 @@ export function MedicineSearch({ initialMedicines, categories }) {
   const [selectedMedicine, setSelectedMedicine] = useState(null)
   const [alternatives, setAlternatives] = useState([])
   const [loadingAlternatives, setLoadingAlternatives] = useState(false)
+  const [requesting, setRequesting] = useState(false)
+
+  const handleRequestAvailability = async () => {
+    if (!selectedMedicine || !profile?.id) return
+    setRequesting(true)
+    try {
+      await createMedicineRequest(profile.id, selectedMedicine.name)
+      toast.success('Request sent to all pharmacies')
+    } catch (error) {
+      console.error('Error requesting availability:', error)
+      toast.error('Failed to send request')
+    }
+    setRequesting(false)
+  }
 
   const searchMedicinesHandler = useCallback(async () => {
     setLoading(true)
@@ -274,6 +291,22 @@ export function MedicineSearch({ initialMedicines, categories }) {
                     <p className="text-sm text-muted-foreground py-4 text-center">
                       No pharmacies currently have this medicine in stock
                     </p>
+                  )}
+
+                  {profile?.role === 'patient' && (
+                    <Button
+                      variant="outline"
+                      className="w-full mt-3"
+                      onClick={handleRequestAvailability}
+                      disabled={requesting}
+                    >
+                      {requesting ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <MessageSquare className="mr-2 h-4 w-4" />
+                      )}
+                      Request Availability from Pharmacies
+                    </Button>
                   )}
                 </div>
 

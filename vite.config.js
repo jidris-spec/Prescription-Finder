@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -17,6 +18,15 @@ export default defineConfig(() => {
     },
     server: {
       port: 3000,
+    },
+    test: {
+      environment: 'jsdom',
+      globals: true,
+      setupFiles: ['./src/test/setup.js'],
+      alias: [
+        { find: '@/components', replacement: path.resolve(__dirname, 'src/shared/components') },
+        { find: '@', replacement: path.resolve(__dirname, 'src') },
+      ],
     },
     build: {
       target: 'es2020',
@@ -39,7 +49,6 @@ export default defineConfig(() => {
             ) return 'ui-overlays'
             if (id.includes('node_modules/@radix-ui')) return 'ui-primitives'
 
-            // Heavy optional libs
             if (id.includes('node_modules/recharts') || id.includes('node_modules/d3-')) return 'charts'
             if (id.includes('node_modules/react-day-picker') || id.includes('node_modules/date-fns')) return 'datepicker'
             if (id.includes('node_modules/embla-carousel')) return 'carousel'
@@ -65,6 +74,8 @@ export default defineConfig(() => {
 
             // Layout helpers
             if (id.includes('node_modules/react-resizable-panels')) return 'panels'
+
+            if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) return 'react'
 
             if (id.includes('node_modules')) return 'vendor'
           },

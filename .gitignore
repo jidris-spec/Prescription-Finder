@@ -1,7 +1,11 @@
 node_modules
-.next
+MENTOR_ESSENTIALS.pdf
+ARCHITECTURE_GUIDE.pdf
+MedFind_Architecture_Guide.pdf
+PRESENTATION_Guide.pdf
+README.md
+LICENSE 
 .env
-dist
-build
-.claude/
-.claude/settings.local.json
+.env.local
+.env.development
+.env.production

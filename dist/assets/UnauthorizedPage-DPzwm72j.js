@@ -1,0 +1,1 @@
+import{j as t}from"./react-DQYPPb5b.js";import"./vendor-CBB1pm15.js";function r(){return t.jsxs("div",{style:{padding:16},children:[t.jsx("h1",{children:"Unauthorized"}),t.jsx("p",{children:"You don’t have access to this page."})]})}export{r as default};

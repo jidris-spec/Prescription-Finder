@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
-import { getAllMedicines, getDoctorByUserId, getConnectedPatients } from '@/shared/lib/firebase/db'
+import { getAllMedicines, getDoctorByUserId, getConnectedPatients, getProfile } from '@/shared/lib/firebase/db'
 import { useAuth } from '@/context/AuthContext'
 import { NewPrescriptionForm } from '../components/new-prescription-form'
 import { Loader2 } from 'lucide-react'
@@ -27,8 +27,16 @@ export default function NewPrescriptionPage() {
         doctorData ? getConnectedPatients(doctorData.id) : []
       ])
 
+      // Resolve patient profiles from connection records
+      const patientList = await Promise.all(
+        (connectedPatients || []).map(async (conn) => {
+          const p = await getProfile(conn.patient_id)
+          return p ? { id: conn.patient_id, ...p } : null
+        })
+      )
+
       setMedicines(medicinesData || [])
-      setPatients(connectedPatients || [])
+      setPatients(patientList.filter(Boolean))
     } catch (error) {
       console.error('Error fetching prescription data:', error)
       setMedicines([])

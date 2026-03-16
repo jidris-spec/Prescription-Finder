@@ -14,16 +14,28 @@ import { db } from '../client'
 
 export const medicinesCollection = collection(db, 'medicines')
 
+// Session-level caches to avoid redundant Firestore reads
+const medicineCache = new Map()
+let allMedicinesCache = null
+
 export async function getMedicine(medicineId) {
+  if (medicineCache.has(medicineId)) return medicineCache.get(medicineId)
   const docRef = doc(db, 'medicines', medicineId)
   const docSnap = await getDoc(docRef)
-  return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null
+  const result = docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null
+  medicineCache.set(medicineId, result)
+  return result
 }
 
 export async function getAllMedicines() {
+  if (allMedicinesCache) return allMedicinesCache
   const q = query(medicinesCollection, orderBy('name'))
   const snapshot = await getDocs(q)
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  const medicines = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  // Populate per-item cache so subsequent getMedicine calls are free
+  medicines.forEach(m => medicineCache.set(m.id, m))
+  allMedicinesCache = medicines
+  return medicines
 }
 
 export async function createMedicine(data) {
@@ -31,17 +43,22 @@ export async function createMedicine(data) {
     ...data,
     created_at: new Date().toISOString()
   })
+  allMedicinesCache = null
   return docRef.id
 }
 
 export async function updateMedicine(medicineId, data) {
   const docRef = doc(db, 'medicines', medicineId)
   await updateDoc(docRef, data)
+  medicineCache.delete(medicineId)
+  allMedicinesCache = null
 }
 
 export async function deleteMedicine(medicineId) {
   const docRef = doc(db, 'medicines', medicineId)
   await deleteDoc(docRef)
+  medicineCache.delete(medicineId)
+  allMedicinesCache = null
 }
 
 export async function searchMedicines(searchTerm) {

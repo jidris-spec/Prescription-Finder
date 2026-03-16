@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { createOrder, updatePrescription } from '@/shared/lib/firebase/db'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -59,9 +60,11 @@ export function OrdersList({ pharmacy, orders, pendingPrescriptions, onRefresh }
         await updatePrescription(prescriptionId, { status: 'completed' })
       }
 
+      toast.success('Prescription filled successfully')
       if (onRefresh) onRefresh()
     } catch (error) {
       console.error('Error filling prescription:', error)
+      toast.error('Failed to fill prescription')
     }
     setFilling(null)
   }

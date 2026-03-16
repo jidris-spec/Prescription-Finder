@@ -1,9 +1,12 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { updatePrescription } from '@/shared/lib/firebase/db'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { FileText, Pill, Calendar, Clock, User, Stethoscope, XCircle, Loader2, AlertTriangle } from 'lucide-react'
+import { FileText, Pill, Calendar, Clock, User, Stethoscope, XCircle, Loader2, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
+
+const PAGE_SIZE = 5
 
 const statusColors = {
   active: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
@@ -41,14 +44,19 @@ function RefillBadge({ daysLeft }) {
 
 export function PrescriptionsList({ prescriptions, role, onRefresh }) {
   const [cancelling, setCancelling] = useState(null)
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil(prescriptions.length / PAGE_SIZE))
+  const paged = prescriptions.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const handleCancel = async (prescriptionId) => {
     setCancelling(prescriptionId)
     try {
       await updatePrescription(prescriptionId, { status: 'cancelled' })
+      toast.success('Prescription cancelled')
       if (onRefresh) onRefresh()
     } catch (err) {
       console.error('Error cancelling prescription:', err)
+      toast.error('Failed to cancel prescription')
     }
     setCancelling(null)
   }
@@ -71,7 +79,7 @@ export function PrescriptionsList({ prescriptions, role, onRefresh }) {
 
   return (
     <div className="space-y-4">
-      {prescriptions.map((prescription) => {
+      {paged.map((prescription) => {
         const daysLeft = prescription.status === 'active' ? getDaysUntilExpiry(prescription.expires_at) : null
         const medicinesList = Array.isArray(prescription.medicines)
           ? prescription.medicines
@@ -214,6 +222,25 @@ export function PrescriptionsList({ prescriptions, role, onRefresh }) {
           </Card>
         )
       })}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground pt-2">
+          <span>
+            Showing {Math.min((page - 1) * PAGE_SIZE + 1, prescriptions.length)}–{Math.min(page * PAGE_SIZE, prescriptions.length)} of {prescriptions.length}
+          </span>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </Button>
+            <span className="px-2">Page {page} of {totalPages}</span>
+            <Button variant="outline" size="sm" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}>
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
