@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
+<<<<<<< Updated upstream
 import { Navigate, Link } from 'react-router-dom'
 import { getAllDoctors, getVerifiedDoctors, getProfile } from '@/shared/lib/firebase/db'
+=======
+import { Navigate } from 'react-router-dom'
+import { getAllDoctors, getProfile } from '@/shared/lib/firebase/db'
+>>>>>>> Stashed changes
 import { useAuth } from '@/context/AuthContext'
 import { DoctorsManager } from '../components/doctors-manager'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -93,6 +98,7 @@ export default function DoctorsPage() {
     if (!profile?.role) { setLoading(false); return }
 
     try {
+<<<<<<< Updated upstream
       if (isAdmin) {
         const data = await getAllDoctors()
         const doctorsWithProfiles = await Promise.all(
@@ -112,6 +118,16 @@ export default function DoctorsPage() {
         )
         setDoctors(doctorsWithProfiles)
       }
+=======
+      const data = await getAllDoctors()
+      const doctorsWithProfiles = await Promise.all(
+        (data || []).map(async (doctor) => {
+          const profile = await getProfile(doctor.user_id)
+          return { ...doctor, profiles: profile || {} }
+        })
+      )
+      setDoctors(doctorsWithProfiles)
+>>>>>>> Stashed changes
     } catch (error) {
       console.error('Error fetching doctors:', error)
       setDoctors([])

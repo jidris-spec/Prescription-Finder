@@ -9,14 +9,17 @@ import LoadingFallback from "@/shared/components/common/LoadingFallback.jsx";
 import HomePage from "@/shared/pages/HomePage.jsx";
 
 // --- Lazy imports ---
-const Login = lazy(() => import("@/auth/pages/LoginPage.jsx"));
-const SignUp = lazy(() => import("@/auth/pages/SignUpPage.jsx"));
-const UnauthorizedPage = lazy(() => import("@/shared/pages/UnauthorizedPage.jsx"));
-const DashboardLayout = lazy(() => import("@/shared/components/layout/DashboardLayout.jsx"));
-const DashboardHomePage = lazy(() => import("@/shared/pages/DashboardHomePage.jsx"));
-const PrescriptionsPage = lazy(() => import("@/shared/pages/PrescriptionsPage.jsx"));
-const SearchPage = lazy(() => import("@/shared/pages/SearchPage.jsx"));
-const SettingsPage = lazy(() => import("@/shared/pages/SettingsPage.jsx"));
+const Login               = lazy(() => import("@/auth/pages/LoginPage.jsx"));
+const SignUp              = lazy(() => import("@/auth/pages/SignUpPage.jsx"));
+const SignUpSuccess        = lazy(() => import("@/auth/pages/SignUpSuccessPage.jsx"));
+const AuthCallback        = lazy(() => import("@/auth/pages/AuthCallbackPage.jsx"));
+const AuthError           = lazy(() => import("@/auth/pages/AuthErrorPage.jsx"));
+const UnauthorizedPage    = lazy(() => import("@/shared/pages/UnauthorizedPage.jsx"));
+const DashboardLayout     = lazy(() => import("@/shared/components/layout/DashboardLayout.jsx"));
+const DashboardHomePage   = lazy(() => import("@/shared/pages/DashboardHomePage.jsx"));
+const PrescriptionsPage   = lazy(() => import("@/shared/pages/PrescriptionsPage.jsx"));
+const SearchPage          = lazy(() => import("@/shared/pages/SearchPage.jsx"));
+const SettingsPage        = lazy(() => import("@/shared/pages/SettingsPage.jsx"));
 
 // Doctor
 const NewPrescriptionPage = lazy(() => import("@/roles/doctor/pages/NewPrescriptionPage.jsx"));
@@ -64,6 +67,14 @@ const router = createBrowserRouter([
   { path: "/", element: <HomePage /> },
 
   {
+    path: "/login",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <Login />
+      </Suspense>
+    ),
+  },
+  {
     path: "/auth/login",
     element: (
       <Suspense fallback={<LoadingFallback />}>
@@ -71,7 +82,6 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
-
   {
     path: "/auth/sign-up",
     element: (
@@ -80,7 +90,30 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
-
+  {
+    path: "/auth/sign-up/success",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <SignUpSuccess />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/callback",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AuthCallback />
+      </Suspense>
+    ),
+  },
+  {
+    path: "/auth/error",
+    element: (
+      <Suspense fallback={<LoadingFallback />}>
+        <AuthError />
+      </Suspense>
+    ),
+  },
   {
     path: "/unauthorized",
     element: (
@@ -89,7 +122,6 @@ const router = createBrowserRouter([
       </Suspense>
     ),
   },
-
 
   // Dashboard
   {
@@ -254,7 +286,6 @@ const router = createBrowserRouter([
           </RequireRole>
         ),
       },
-
 
       {
         path: "settings",

@@ -1,6 +1,31 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 
+const PROFILE_CACHE_KEY = "medfind_profile_cache";
+
+function readCachedProfile(uid) {
+  try {
+    const raw = localStorage.getItem(PROFILE_CACHE_KEY);
+    if (!raw) return null;
+    const { id, data } = JSON.parse(raw);
+    return id === uid ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeCachedProfile(uid, profile) {
+  try {
+    localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify({ id: uid, data: profile }));
+  } catch {}
+}
+
+function clearCachedProfile() {
+  try {
+    localStorage.removeItem(PROFILE_CACHE_KEY);
+  } catch {}
+}
+
 const AuthContext = createContext(null);
 
 // Module-level cache — Firebase loads once, then all calls are synchronous
@@ -50,17 +75,30 @@ export function AuthProvider({ children }) {
         if (!u) {
           setUser(null);
           setProfile(null);
+          clearCachedProfile();
           setLoading(false);
           return;
         }
-        setLoading(true);
+
         setUser(u);
+
+        // Serve cached profile immediately so the UI can render without waiting
+        const cached = readCachedProfile(u.uid);
+        if (cached) {
+          setProfile(cached);
+          setLoading(false);
+        } else {
+          setLoading(true);
+        }
+
+        // Always fetch fresh profile in the background
         try {
           const p = await getProfile(u.uid);
           setProfile(p);
+          writeCachedProfile(u.uid, p);
         } catch (e) {
           console.error("Failed to load profile:", e);
-          setProfile(null);
+          if (!cached) setProfile(null);
         } finally {
           setLoading(false);
         }
@@ -102,6 +140,7 @@ export function AuthProvider({ children }) {
       }
       const p = await getProfile(uid);
       setProfile(p);
+      writeCachedProfile(uid, p);
       return { error: null };
     } catch (e) {
       return { error: e?.message || "Failed to sign up" };
@@ -109,6 +148,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signOutUser() {
+    clearCachedProfile();
     const { fbSignOut, auth } = await loadFirebase();
     return fbSignOut(auth);
   }
@@ -119,6 +159,7 @@ export function AuthProvider({ children }) {
     try {
       const p = await getProfile(user.uid);
       setProfile(p);
+      writeCachedProfile(user.uid, p);
     } catch (e) {
       console.error("Failed to refresh profile:", e);
     }
