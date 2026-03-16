@@ -34,6 +34,9 @@ const InventoryPage = lazy(() => import("@/roles/pharmacy/pages/InventoryPage.js
 const MedicinesPage = lazy(() => import("@/roles/pharmacy/pages/MedicinesPage.jsx"));
 const OrdersPage = lazy(() => import("@/roles/pharmacy/pages/OrdersPage.jsx"));
 
+// Requests
+const RequestsPage = lazy(() => import("@/shared/pages/RequestsPage.jsx"));
+
 // Admin
 const UsersPage = lazy(() => import("@/roles/admin/pages/UsersPage.jsx"));
 const VerificationsPage = lazy(() => import("@/roles/admin/pages/VerificationsPage.jsx"));
@@ -235,6 +238,17 @@ const router = createBrowserRouter([
           <RequireRole allow={["doctor", "patient", "pharmacy", "admin"]}>
             <Suspense fallback={<LoadingFallback />}>
               <SearchPage />
+            </Suspense>
+          </RequireRole>
+        ),
+      },
+
+      {
+        path: "requests",
+        element: (
+          <RequireRole allow={["patient", "pharmacy"]}>
+            <Suspense fallback={<LoadingFallback />}>
+              <RequestsPage />
             </Suspense>
           </RequireRole>
         ),

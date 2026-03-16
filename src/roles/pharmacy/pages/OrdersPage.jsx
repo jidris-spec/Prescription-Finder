@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Navigate } from 'react-router-dom'
-import { getOrdersByPharmacy, getPharmacyByUserId, getAllActivePrescriptions, getProfile, getMedicine } from '@/shared/lib/firebase/db'
+import { getOrdersByPharmacy, getPharmacyByUserId, getAllActivePrescriptions, getProfile, getPrescriptionItems } from '@/shared/lib/firebase/db'
 import { useAuth } from '@/context/AuthContext'
 import { OrdersList } from '../components/orders-list'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -65,17 +65,25 @@ export default function OrdersPage() {
         )
 
         // Enrich pending prescriptions with patient and medicine info
-        pendingData = await Promise.all(
+        let enrichedPrescriptions = await Promise.all(
           activePrescriptions
             .filter(p => !filledPrescriptionIds.has(p.id))
             .map(async (p) => {
-              const [patient, medicine] = await Promise.all([
+              const [patient, items] = await Promise.all([
                 p.patient_id ? getProfile(p.patient_id) : null,
-                p.medicine_id ? getMedicine(p.medicine_id) : null
+                getPrescriptionItems(p.id)
               ])
-              return { ...p, patients: patient, medicines: medicine }
+              const medicines = items.map(item => item.medicine).filter(Boolean)
+              return { ...p, patients: patient, medicines }
             })
         )
+
+        // Filter prescriptions to only show those from patients in the same city as the pharmacy
+        if (pharmacyData.city) {
+          enrichedPrescriptions = enrichedPrescriptions.filter(p => p.patients?.city === pharmacyData.city)
+        }
+
+        pendingData = enrichedPrescriptions
       }
 
       setOrders(ordersData || [])

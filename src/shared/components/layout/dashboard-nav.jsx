@@ -27,8 +27,10 @@ import {
   Sun,
   Moon,
   BadgeCheck,
+  MessageSquare,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/utils/cn'
+import { normalizeRole } from '@/shared/lib/utils/roles'
 
 const roleIcons = {
   patient: User,
@@ -50,6 +52,7 @@ const navItemsByRole = {
     { href: '/dashboard/schedule', label: 'Schedule', icon: ClipboardList },
     { href: '/dashboard/prescriptions', label: 'Prescriptions', icon: FileText },
     { href: '/dashboard/search', label: 'Find Medicines', icon: Search },
+    { href: '/dashboard/requests', label: 'Requests', icon: MessageSquare },
   ],
   doctor: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -65,6 +68,7 @@ const navItemsByRole = {
     { href: '/dashboard/inventory', label: 'Inventory', icon: Package },
     { href: '/dashboard/orders', label: 'Orders', icon: ClipboardList },
     { href: '/dashboard/search', label: 'Search', icon: Search },
+    { href: '/dashboard/requests', label: 'Requests', icon: MessageSquare },
   ],
   admin: [
     { href: '/dashboard', label: 'Overview', icon: LayoutDashboard },
@@ -81,7 +85,7 @@ export function DashboardNav({ user, profile }) {
   const navigate = useNavigate()
   const { signOut } = useAuth()
   const { theme, setTheme } = useTheme()
-  const role = profile?.role || 'patient'
+  const role = normalizeRole(profile?.role) || 'patient'
   const RoleIcon = roleIcons[role]
   const navItems = navItemsByRole[role]
 

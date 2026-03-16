@@ -1,0 +1,1 @@
+import{j as t}from"./react-tM45U8Fj.js";import"./vendor-5bfBv9Ja.js";import"./ui-vendor-Cp7esM4S.js";function o(){return t.jsxs("div",{style:{padding:16},children:[t.jsx("h1",{children:"Unauthorized"}),t.jsx("p",{children:"You don’t have access to this page."})]})}export{o as default};

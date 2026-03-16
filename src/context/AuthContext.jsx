@@ -12,7 +12,7 @@ async function loadFirebase() {
     { onAuthStateChanged, signInWithEmailAndPassword, signOut: fbSignOut, createUserWithEmailAndPassword },
     { doc, setDoc, serverTimestamp },
     client,
-    { getProfile },
+    { getProfile, createPharmacy },
   ] = await Promise.all([
     import("firebase/auth"),
     import("firebase/firestore"),
@@ -30,6 +30,7 @@ async function loadFirebase() {
     auth: client.auth,
     db: client.db,
     getProfile,
+    createPharmacy,
   };
   return _fb;
 }
@@ -83,7 +84,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, profileData = {}) {
-    const { createUserWithEmailAndPassword, doc, setDoc, serverTimestamp, auth, db, getProfile } =
+    const { createUserWithEmailAndPassword, doc, setDoc, serverTimestamp, auth, db, getProfile, createPharmacy } =
       await loadFirebase();
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -93,6 +94,12 @@ export function AuthProvider({ children }) {
         { ...profileData, created_at: serverTimestamp(), updated_at: serverTimestamp() },
         { merge: true }
       );
+      if (profileData.role === 'pharmacy') {
+        await createPharmacy({
+          owner_user_id: uid,
+          name: profileData.full_name || email,
+        });
+      }
       const p = await getProfile(uid);
       setProfile(p);
       return { error: null };

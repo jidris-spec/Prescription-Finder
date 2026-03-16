@@ -19,7 +19,7 @@ export async function getPharmacy(pharmacyId) {
 }
 
 export async function getPharmacyByUserId(userId) {
-  const q = query(pharmaciesCollection, where('user_id', '==', userId))
+  const q = query(pharmaciesCollection, where('owner_user_id', '==', userId))
   const snapshot = await getDocs(q)
   if (snapshot.empty) return null
   const d = snapshot.docs[0]
@@ -29,6 +29,7 @@ export async function getPharmacyByUserId(userId) {
 export async function createPharmacy(data) {
   const docRef = await addDoc(pharmaciesCollection, {
     ...data,
+    owner_user_id: data.owner_user_id || data.user_id, // backwards compatibility
     verified: false,
     created_at: new Date().toISOString()
   })
