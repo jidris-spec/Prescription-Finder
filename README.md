@@ -2,6 +2,10 @@
 
 **Live Demo:** [prescription-finder-git-main-idris-projects-508cd8f1.vercel.app](https://prescription-finder-git-main-idris-projects-508cd8f1.vercel.app/)
 
+## Scope
+
+This MVP focuses on medicine discovery and availability confirmation.
+Ordering and payment are intentionally out of scope for this version.
 A full-stack web application that connects patients, doctors, and pharmacies to streamline prescription management and medicine discovery.
 
 ---

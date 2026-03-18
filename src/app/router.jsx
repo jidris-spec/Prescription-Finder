@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useRef } from "react";
 import { useAuth } from "@/context/AuthContext.jsx";
 import RequireRole from "@/guards/RequireRole.jsx";
 import { normalizeRole } from "@/shared/lib/utils/roles";
@@ -44,6 +44,35 @@ const RequestsPage = lazy(() => import("@/shared/pages/RequestsPage.jsx"));
 const UsersPage = lazy(() => import("@/roles/admin/pages/UsersPage.jsx"));
 const VerificationsPage = lazy(() => import("@/roles/admin/pages/VerificationsPage.jsx"));
 
+// Guards the login route for a demo environment that supports role switching.
+//
+// wasNullRef starts false. It flips to true the first time user=null is seen
+// on this page visit — either on an unauthenticated arrival, or after LoginPage
+// calls signOut() on mount to clear an existing session.
+//
+// Redirect rule: only send to /dashboard after wasNullRef is true AND
+// user + profile are fully loaded. This means:
+//
+//   • User arrives already logged in (e.g. browser back from /dashboard)
+//     → wasNullRef stays false → login form is shown, no redirect
+//     → LoginPage's mount signOut() fires → user becomes null → wasNullRef=true
+//     → user picks a new role → signIn → user+profile ready → redirect ✓
+//
+//   • User arrives unauthenticated (normal login)
+//     → user=null on load → wasNullRef=true immediately
+//     → user signs in → user+profile ready → redirect ✓
+function GuestOnly({ children }) {
+  const { loading, user, profile } = useAuth();
+  const wasNullRef = useRef(false);
+
+  // Runs on every render before the early returns — keeps the ref current.
+  if (!loading && !user) wasNullRef.current = true;
+
+  if (loading) return <LoadingFallback />;
+  if (user && profile && wasNullRef.current) return <Navigate to="/dashboard" replace />;
+  return children;
+}
+
 function RoleRedirect() {
   const { loading, user, profile } = useAuth();
 
@@ -69,17 +98,21 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <Login />
-      </Suspense>
+      <GuestOnly>
+        <Suspense fallback={<LoadingFallback />}>
+          <Login />
+        </Suspense>
+      </GuestOnly>
     ),
   },
   {
     path: "/auth/login",
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <Login />
-      </Suspense>
+      <GuestOnly>
+        <Suspense fallback={<LoadingFallback />}>
+          <Login />
+        </Suspense>
+      </GuestOnly>
     ),
   },
   {

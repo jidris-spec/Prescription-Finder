@@ -1,0 +1,1 @@
+import{j as e}from"./react-DIDUf3HZ.js";function s(){return e.jsxs("div",{style:{padding:16},children:[e.jsx("h1",{children:"Unauthorized"}),e.jsx("p",{children:"You don’t have access to this page."})]})}export{s as default};

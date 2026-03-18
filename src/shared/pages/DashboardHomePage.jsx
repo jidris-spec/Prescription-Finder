@@ -24,14 +24,24 @@ const AdminDashboard      = lazy(() => import('@/roles/admin/components/admin-da
 
 export default function DashboardHomePage() {
   const { user, profile } = useAuth()
-  const role = profile?.role || 'patient'
+
+  // ALL hooks must be declared before any conditional return (Rules of Hooks).
   const [pharmacy, setPharmacy] = useState(null)
   const [stats, setStats] = useState({})
   const [patientPrescriptions, setPatientPrescriptions] = useState([])
   const [scheduleStats, setScheduleStats] = useState(null)
 
+  const role = profile?.role
+
+  console.log('[Dashboard] render → uid:', user?.uid ?? 'null', '| role:', role ?? 'loading')
+
   useEffect(() => {
     if (!user || !profile) return
+
+    if (!role) {
+      console.error('DashboardHomePage: profile loaded but role field is missing', profile)
+      return
+    }
 
     const fetchDoctorStats = async () => {
       try {
@@ -153,6 +163,16 @@ export default function DashboardHomePage() {
         break
     }
   }, [user, profile, role])
+
+  // Block render until profile is confirmed — never fallback to a default role.
+  if (!profile) {
+    return <LoadingFallback />
+  }
+
+  if (!role) {
+    console.error('DashboardHomePage: profile exists but role is missing', profile)
+    return <LoadingFallback />
+  }
 
   switch (role) {
     case 'doctor':

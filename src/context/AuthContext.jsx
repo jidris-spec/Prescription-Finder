@@ -3,17 +3,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 
 const PROFILE_CACHE_KEY = "medfind_profile_cache";
 
-function readCachedProfile(uid) {
-  try {
-    const raw = localStorage.getItem(PROFILE_CACHE_KEY);
-    if (!raw) return null;
-    const { id, data } = JSON.parse(raw);
-    return id === uid ? data : null;
-  } catch {
-    return null;
-  }
-}
-
 function writeCachedProfile(uid, profile) {
   try {
     localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify({ id: uid, data: profile }));
@@ -28,11 +17,12 @@ function clearCachedProfile() {
 
 const AuthContext = createContext(null);
 
-// Module-level cache — Firebase loads once, then all calls are synchronous
+// Firebase module cache
 let _fb = null;
 
 async function loadFirebase() {
   if (_fb) return _fb;
+
   const [
     { onAuthStateChanged, signInWithEmailAndPassword, signOut: fbSignOut, createUserWithEmailAndPassword },
     { doc, setDoc, serverTimestamp },
@@ -44,6 +34,7 @@ async function loadFirebase() {
     import("@/shared/lib/firebase/client"),
     import("@/shared/lib/firebase/db"),
   ]);
+
   _fb = {
     onAuthStateChanged,
     signInWithEmailAndPassword,
@@ -57,6 +48,7 @@ async function loadFirebase() {
     getProfile,
     createPharmacy,
   };
+
   return _fb;
 }
 
@@ -71,7 +63,9 @@ export function AuthProvider({ children }) {
 
     loadFirebase().then(({ onAuthStateChanged, auth, getProfile }) => {
       if (cancelled) return;
+
       unsub = onAuthStateChanged(auth, async (u) => {
+        console.log("[Auth] onAuthStateChanged → uid:", u?.uid ?? "null (signed out)");
         if (!u) {
           setUser(null);
           setProfile(null);
@@ -80,27 +74,29 @@ export function AuthProvider({ children }) {
           return;
         }
 
+        // Reset state immediately
         setUser(u);
+        setProfile(null);
+        setLoading(true);
 
-        // Serve cached profile immediately so the UI can render without waiting
-        const cached = readCachedProfile(u.uid);
-        if (cached) {
-          setProfile(cached);
-          setLoading(false);
-        } else {
-          setLoading(true);
-        }
-
-        // Always fetch fresh profile in the background
         try {
           const p = await getProfile(u.uid);
-          setProfile(p);
-          writeCachedProfile(u.uid, p);
+
+          if (!cancelled) {
+            if (p && !p.role) {
+              console.error("Profile missing role:", p);
+            }
+
+            setProfile(p);
+
+            if (p) writeCachedProfile(u.uid, p);
+            else clearCachedProfile();
+          }
         } catch (e) {
           console.error("Failed to load profile:", e);
-          if (!cached) setProfile(null);
+          if (!cancelled) setProfile(null);
         } finally {
-          setLoading(false);
+          if (!cancelled) setLoading(false);
         }
       });
     });
@@ -111,10 +107,19 @@ export function AuthProvider({ children }) {
     };
   }, []);
 
+  // ✅ FIXED SIGN IN (single, correct version)
   async function signIn(email, password) {
     const { signInWithEmailAndPassword, auth } = await loadFirebase();
+
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      console.log("[Auth] signIn → before | current uid:", auth.currentUser?.uid ?? "null", "| target:", email);
+
+      clearCachedProfile();
+
+      const cred = await signInWithEmailAndPassword(auth, email, password);
+
+      console.log("[Auth] signIn → after  | new uid:", cred.user.uid, "| email:", cred.user.email);
+
       return { error: null };
     } catch (e) {
       return { error: e?.message || "Failed to sign in" };
@@ -122,25 +127,42 @@ export function AuthProvider({ children }) {
   }
 
   async function signUp(email, password, profileData = {}) {
-    const { createUserWithEmailAndPassword, doc, setDoc, serverTimestamp, auth, db, getProfile, createPharmacy } =
-      await loadFirebase();
+    const {
+      createUserWithEmailAndPassword,
+      doc,
+      setDoc,
+      serverTimestamp,
+      auth,
+      db,
+      getProfile,
+      createPharmacy,
+    } = await loadFirebase();
+
     try {
       const cred = await createUserWithEmailAndPassword(auth, email, password);
       const uid = cred.user.uid;
+
       await setDoc(
         doc(db, "profiles", uid),
-        { ...profileData, created_at: serverTimestamp(), updated_at: serverTimestamp() },
+        {
+          ...profileData,
+          created_at: serverTimestamp(),
+          updated_at: serverTimestamp(),
+        },
         { merge: true }
       );
-      if (profileData.role === 'pharmacy') {
+
+      if (profileData.role === "pharmacy") {
         await createPharmacy({
           owner_user_id: uid,
           name: profileData.full_name || email,
         });
       }
+
       const p = await getProfile(uid);
       setProfile(p);
       writeCachedProfile(uid, p);
+
       return { error: null };
     } catch (e) {
       return { error: e?.message || "Failed to sign up" };
@@ -150,12 +172,15 @@ export function AuthProvider({ children }) {
   async function signOutUser() {
     clearCachedProfile();
     const { fbSignOut, auth } = await loadFirebase();
-    return fbSignOut(auth);
+    console.log("[Auth] signOut → before | uid:", auth.currentUser?.uid ?? "null");
+    await fbSignOut(auth);
+    console.log("[Auth] signOut → after  | uid:", auth.currentUser?.uid ?? "null");
   }
 
   async function refreshProfile() {
     if (!user) return;
     const { getProfile } = await loadFirebase();
+
     try {
       const p = await getProfile(user.uid);
       setProfile(p);
